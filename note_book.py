@@ -80,39 +80,50 @@ def main():
         print("2. Edit Note(Редагувати)")
         print("3. Delete Note(Видалити)")
         print("4. Sort Notes(Сортування)")
-        print("5. Exit")
+        print("5. Search Notes(Пошук)")
+        print("6. Exit")
 
         choice = input("Enter command >>> ")
-
+        
         if choice == '1':
             # Додати нотатку.
             title = input("Enter the title: ")
-            content = input("Enter the content: ")
-            tags = input("Enter tags: ").split(', ')
-            note = Note(title, content, tags)
-            notebook.add_note(note)
-            print("Note added successfully!")
             
+            # Перевірити, чи нотатка з такою назвою вже існує
+            for existing_note in notebook.notes:
+                if existing_note.title == title:
+                    print("Нотатка з такою назвою вже існує.")
+                    break
+            else:
+                content = input("Enter the content: ")
+                tags = input("Enter tags: ").split(', ')
+                note = Note(title, content, tags)
+                notebook.add_note(note)
+                #print("Note added successfully!")
+
         elif choice == '2':
             # Редагувати нотатку.
             title = input("Enter the title of the note to edit: ")
             new_content = input("Enter the new content: ")
-            
+
             if notebook.edit_note(title, new_content):
                 print("Note edited successfully!")
-                
+
+
             else:
                 print("Note not found!")
 
         elif choice == '3':
             # Видалити нотатку.
             title = input("Enter the title of the note to delete: ")
-            
+
+
             if notebook.delete_note(title):
                 print("Note deleted successfully!")
-                
+
             else:
                 print("Note not found!")
+                
 
         elif choice == '4':
             # Сортування нотаток за ключовим словом.
@@ -124,10 +135,24 @@ def main():
             # Виводимо.           
             for note, _ in sorted_notes:
                 print(note)
-
+   
         elif choice == '5':
+            # Пошук нотаток за ключовим словом.
+            keyword = input("Enter the keyword to search notes by: ")
+            matching_notes = notebook.search_notes(keyword)
+            if matching_notes:
+                print("Знайдені нотатки:")
+                for note in matching_notes:
+                    print(note)
+            else:
+                print("Нотатки з таким ключовим словом не знайдено.")
+
+                
+        elif choice == '6':
+
             print("Bye...")
             break
 
 if __name__ == "__main__":
+
     main()
