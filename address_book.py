@@ -3,6 +3,7 @@ from datetime import datetime
 import json
 import re
 
+
 class TerribleException(Exception):
     pass
 
@@ -77,7 +78,7 @@ class Record:
         self.name = name
         self.phones = []
         self.phones.append(phone)
-        self.email = email         # add email
+        self.email = email  # add email
         self.birthday = None
 
     def __repr__(self) -> str:
@@ -203,52 +204,65 @@ class Phone(Field):
     def value(self):
         return self.__value
 
-
     @staticmethod
     def valid_phone(phone: str):
         if 10 <= len(phone) <= 13:
-            if phone.startswith('+380') and len(phone) == 13:
-                return phone
-            elif phone.startswith('80') and len(phone) == 11:
-                return '+3' + phone
-            elif phone.startswith('0') and len(phone) == 10:
-                return '+38' + phone
-            else:
-                print('Number format is not correct! Must match the one of the current formats:'
-                      ' +380001112233 or 80001112233 or 0001112233')
-                raise WrongArgumentFormat
-        else:
-            print('Number format is not correct! Must contain 10-13 symbols!')
-            raise WrongArgumentFormat
-        
-        
-    class Email(Field):
-
-        def __init__(self, value):
-            self.__value = value
-
-        def __repr__(self) -> str:
-            return f'{self.__value}'
-
-        @property
-        def value(self):
-            return self.__value
-
-        @staticmethod
-        def valid_email(email: str):
-            if re.match(
-                    r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
-                                                            r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
+            if phone.removeprefix('+').isdigit():
                 return True
+        else:
+            return False
+
+    @staticmethod
+    def convert_phone_number(phone: str):
+        correct_phone_number = ''
+        if phone.startswith('+380') and len(phone) == 13:
+            correct_phone_number = phone
+        elif phone.startswith('80') and len(phone) == 11:
+            correct_phone_number = '+3' + phone
+        elif phone.startswith('0') and len(phone) == 10:
+            correct_phone_number = '+38' + phone
+        return correct_phone_number
+
+    @value.setter
+    def value(self, new_value):
+        is_valid = self.valid_phone(new_value)
+        if is_valid:
+            self.__value = self.convert_phone_number(new_value)
+        else:
+            print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
+                  'formats: +380001112233 or 80001112233 or 0001112233')
+            raise WrongArgumentFormat
+
+
+class Email(Field):
+
+    def __init__(self, value):
+        self.__value = value
+
+    def __repr__(self) -> str:
+        return f'{self.__value}'
+
+    @property
+    def value(self):
+        return self.__value
+
+    @staticmethod
+    def valid_email(email: str):
+        if re.match(
+                r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
+            r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
+            return True
+        return False
+
+    @value.setter
+    def value(self, new_value):
+        is_valid = self.valid_email(new_value)
+        if is_valid:
+            self.__value = new_value
+        else:
             print('The email address is not valid! Must contain min 2 characters before "@" and 2-3 symbols in TLD! '
                   'Example: aa@example.net or aa@example.com.ua')
             raise ValueError
-
-        @value.setter
-        def value(self, new_value):
-            valid_result = self.valid_email(new_value)
-            if valid_result:
-                self.__value = new_value
 
 
 def deconstruct_command(input_line: str) -> list:
@@ -288,7 +302,6 @@ def deconstruct_command(input_line: str) -> list:
 
 
 def load():
-
     adr_book = AddressBook()
 
     try:
@@ -355,8 +368,8 @@ def add_record(adr_book, line_list):
     name = Name(line_list[1])
     phone_number = Phone('')
     phone_number.value = line_list[2]
-    email = Email('')                
-    email.value = line_list[3]      # add Email from list
+    email = Email('')
+    email.value = line_list[3]  # add Email from list
     record = Record(name, phone_number, email)
     adr_book.add_record(record)
     print(f'Added record for {name.value} with {phone_number.value}, and email {email.value} my lord.')
