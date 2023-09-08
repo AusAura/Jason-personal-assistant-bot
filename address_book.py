@@ -26,7 +26,8 @@ def command_phone_operations_check_decorator(func):
             print('Argument type is not acceptable!', error)
             return
         except ValueError as error:
-            print(f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
+            print(
+                f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
             return
         except IndexError as error:
             print(f'Not enough arguments for {func.__name__}!', error)
@@ -39,7 +40,8 @@ def command_phone_operations_check_decorator(func):
             print('Such command (or object) does not exist!', error)
             return
         except ExcessiveArguments as error:
-            print(f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
+            print(
+                f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
             return
         except WrongArgumentFormat:
             return
@@ -57,7 +59,8 @@ class AddressBook(UserDict):
 
         if n > len(self.data):
             n = len(self.data)
-            print(f'Seems like there is only {len(self.data)} items in the book!')
+            print(
+                f'Seems like there is only {len(self.data)} items in the book!')
             counter = len(self.data) + 1
 
         for key, value in self.data.items():
@@ -153,10 +156,12 @@ class Birthday(Field):
     def _days_to_birthday(self):
 
         datenow = datetime.now().date()
-        future_bday_date = datetime(year=datenow.year, month=self.value.month, day=self.value.day).date()
+        future_bday_date = datetime(
+            year=datenow.year, month=self.value.month, day=self.value.day).date()
 
         if future_bday_date < datenow:
-            future_bday_date = datetime(year=datenow.year + 1, month=self.value.month, day=self.value.day).date()
+            future_bday_date = datetime(
+                year=datenow.year + 1, month=self.value.month, day=self.value.day).date()
 
         delta = future_bday_date - datenow
         pure_days = delta.days % 365
@@ -172,7 +177,8 @@ class Birthday(Field):
         try:
             self.__value = datetime.strptime(new_value, '%d %B %Y').date()
         except ValueError:
-            print('Your data format is not correct! Please use this one: "10 January 2020"')
+            print(
+                'Your data format is not correct! Please use this one: "10 January 2020"')
             raise WrongArgumentFormat
 
     def __repr__(self) -> str:
@@ -199,7 +205,6 @@ class Phone(Field):
     @property
     def value(self):
         return self.__value
-
 
     @staticmethod
     def valid_phone(phone: str):
@@ -238,8 +243,8 @@ class Phone(Field):
         @staticmethod
         def valid_email(email: str):
             if re.match(
-                    r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
-                                                            r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
+                r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
+                    r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
                 return True
             print('The email address is not valid! Must contain min 2 characters before "@"! Example: aa@example.com '
                   'or aa@example.com.ua')
@@ -306,11 +311,14 @@ def load():
                 if row_phones:
 
                     row_normalized_phones = row_phones.replace('[', '')
-                    row_normalized_phones = row_normalized_phones.replace(']', '')
-                    row_normalized_phones = row_normalized_phones.replace(' ', '')
+                    row_normalized_phones = row_normalized_phones.replace(
+                        ']', '')
+                    row_normalized_phones = row_normalized_phones.replace(
+                        ' ', '')
                     row_normalized_phones = row_normalized_phones.split(',')
 
-                    row_serialized_phones = [Phone(phone) for phone in row_normalized_phones]
+                    row_serialized_phones = [
+                        Phone(phone) for phone in row_normalized_phones]
 
                 else:
                     row_serialized_phones = ''
@@ -334,7 +342,8 @@ def save(adr_book):
 
         try:
             for record in adr_book.data.values():
-                writer.writerow({'Name': record.name, 'Phones': record.phones, 'Birthday': record.birthday.value})
+                writer.writerow(
+                    {'Name': record.name, 'Phones': record.phones, 'Birthday': record.birthday.value})
 
         except AttributeError as error:
 
@@ -347,7 +356,7 @@ def perform_command(command: str, adr_book, *args, **kwargs) -> None:
     command_list[command](adr_book, *args, **kwargs)
 
 
-## curry functions
+# curry functions
 @command_phone_operations_check_decorator
 def add_record(adr_book, line_list):
     if len(line_list) > 3:
