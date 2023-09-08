@@ -223,7 +223,7 @@ class Phone(Field):
         @staticmethod
         def valid_email(email: str):
             if re.match(
-                    r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}+\.[a-z]{2,3}$', email) or re.match(
+                    r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
                                                             r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
                 return True
             print('The email address is not valid! Must contain min 2 characters before "@"! Example: aa@example.com '
