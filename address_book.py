@@ -1,8 +1,7 @@
 from collections import UserDict
 from datetime import datetime
-import csv
+import json
 import re
-
 
 class TerribleException(Exception):
     pass
@@ -74,10 +73,11 @@ class AddressBook(UserDict):
 
 class Record:
 
-    def __init__(self, name, phone):
+    def __init__(self, name, phone, email):
         self.name = name
         self.phones = []
         self.phones.append(phone)
+        self.email = email         # add email
         self.birthday = None
 
     def __repr__(self) -> str:
@@ -220,12 +220,8 @@ class Phone(Field):
         else:
             print('Number format is not correct! Must contain 10-13 symbols!')
             raise WrongArgumentFormat
-
-    @value.setter
-    def value(self, new_value):
-        new_value = self.valid_phone(new_value)
-        self.__value = new_value
-
+        
+        
     class Email(Field):
 
         def __init__(self, value):
@@ -292,27 +288,23 @@ def deconstruct_command(input_line: str) -> list:
 
 
 def load():
+
     adr_book = AddressBook()
 
     try:
-        with open('save.csv', newline='') as fh:
-            reader = csv.DictReader(fh)
+        with open('save.json', 'r') as json_file:
+            data = json.load(json_file)
 
-            for row in reader:
+            for record_data in data:
+                row_name = Name(record_data['Name'])
+                row_birthday = Birthday(record_data['Birthday'])
+                row_email = Email(record_data['Email'])
+                record = Record(row_name, '', row_email)
 
-                row_name = Name(row['Name'])
-                row_birthday = Birthday(row['Birthday'])
-                record = Record(row_name, '')
-
-                row_phones = row['Phones']
+                row_phones = record_data['Phones']
 
                 if row_phones:
-
-                    row_normalized_phones = row_phones.replace('[', '')
-                    row_normalized_phones = row_normalized_phones.replace(']', '')
-                    row_normalized_phones = row_normalized_phones.replace(' ', '')
-                    row_normalized_phones = row_normalized_phones.split(',')
-
+                    row_normalized_phones = row_phones.split(',')
                     row_serialized_phones = [Phone(phone) for phone in row_normalized_phones]
 
                 else:
@@ -320,7 +312,6 @@ def load():
 
                 record.phones = row_serialized_phones
                 record.birthday = row_birthday
-
                 adr_book.add_record(record)
 
     except FileNotFoundError:
@@ -330,19 +321,24 @@ def load():
 
 
 def save(adr_book):
-    with open('save.csv', 'w', newline='') as fh:
+    data = []
 
-        writer = csv.DictWriter(fh, fieldnames=['Name', 'Phones', 'Birthday'])
-        writer.writeheader()
+    for record in adr_book.data.values():
+        record_data = {
+            'Name': record.name.value,
+            'Phones': [phone.value for phone in record.phones],
+            'Email': record.email.value,
+            'Birthday': record.birthday.value
+        }
+        data.append(record_data)
 
-        try:
-            for record in adr_book.data.values():
-                writer.writerow({'Name': record.name, 'Phones': record.phones, 'Birthday': record.birthday.value})
+    try:
+        with open('save.json', 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+        print('The data is saved in JSON format.')
 
-        except AttributeError as error:
-
-            print('Error writing a file, try again:', error)
-            return -1
+    except FileNotFoundError:
+        print('Data could not be saved. Check the path to the file.')
 
 
 @command_phone_operations_check_decorator
@@ -353,15 +349,17 @@ def perform_command(command: str, adr_book, *args, **kwargs) -> None:
 ## curry functions
 @command_phone_operations_check_decorator
 def add_record(adr_book, line_list):
-    if len(line_list) > 3:
+    if len(line_list) > 4:
         raise ExcessiveArguments
 
     name = Name(line_list[1])
     phone_number = Phone('')
     phone_number.value = line_list[2]
-    record = Record(name, phone_number)
+    email = Email('')                
+    email.value = line_list[3]      # add Email from list
+    record = Record(name, phone_number, email)
     adr_book.add_record(record)
-    print(f'Added record for {name.value} with {phone_number.value}, my lord.')
+    print(f'Added record for {name.value} with {phone_number.value}, and email {email.value} my lord.')
 
 
 @command_phone_operations_check_decorator
@@ -558,7 +556,8 @@ def main():
 if __name__ == '__main__':
     name = Name('Bill')
     phone = Phone('1234567890')
-    rec = Record(name, phone)
+    email = Email('test@gmail.com')
+    rec = Record(name, phone, email)
     ab = AddressBook()
     ab.add_record(rec)
 
