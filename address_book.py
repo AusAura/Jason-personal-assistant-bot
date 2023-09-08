@@ -31,7 +31,7 @@ def command_phone_operations_check_decorator(func):
         except IndexError as error:
             print(f'Not enough arguments for {func.__name__}!', error)
             return
-        except TerribleException:
+        except TerribleException as error:
             print('''Something REALLY unknown had happened during your command reading! Please stay  
             calm and run out of the room!''', error)
             return
@@ -200,13 +200,28 @@ class Phone(Field):
     def value(self):
         return self.__value
 
+
+    @staticmethod
+    def valid_phone(phone: str):
+        if 10 <= len(phone) <= 13:
+            if phone.startswith('+380') and len(phone) == 13:
+                return phone
+            elif phone.startswith('80') and len(phone) == 11:
+                return '+3' + phone
+            elif phone.startswith('0') and len(phone) == 10:
+                return '+38' + phone
+            else:
+                print('Number format is not correct! Must match the one of the current formats:'
+                      ' +380001112233 or 80001112233 or 0001112233')
+                raise WrongArgumentFormat
+        else:
+            print('Number format is not correct! Must contain 10-13 symbols!')
+            raise WrongArgumentFormat
+
     @value.setter
     def value(self, new_value):
-        if len(new_value) == 10:
-            self.__value = new_value
-        else:
-            print('Number format is not correct! Should be: "0990002233"')
-            raise WrongArgumentFormat
+        new_value = self.valid_phone(new_value)
+        self.__value = new_value
 
     class Email(Field):
 
