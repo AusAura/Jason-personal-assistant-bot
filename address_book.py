@@ -86,8 +86,11 @@ class Record:
     def add_phone(self, phone):
         new_phone = Phone('')
         new_phone.value = phone
-        self.phones.append(new_phone)
-        print(f'{new_phone.value} record was successfully added for {self.name.value}')
+        if new_phone.value not in [ph.value for ph in self.phones]:
+            self.phones.append(phone)
+            print(f'{new_phone.value} record was successfully added for {self.name.value}')
+        else:
+            print(f'{new_phone.value} is already actually recorded in {self.name.value}')
 
     def edit_phone(self, old_phone):
 
