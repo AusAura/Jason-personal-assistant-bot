@@ -240,8 +240,8 @@ class Phone(Field):
                     r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
                                                             r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
                 return True
-            print('The email address is not valid! Must contain min 2 characters before "@" and 2 or 3 characters '
-                  'after dot! Example: aa@example.net or aa@example.com.ua')
+            print('The email address is not valid! Must contain min 2 characters before "@" and 2-3 symbols in TLD! '
+                  'Example: aa@example.net or aa@example.com.ua')
             raise ValueError
 
         @value.setter
