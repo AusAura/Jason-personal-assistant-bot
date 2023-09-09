@@ -74,11 +74,16 @@ class AddressBook(UserDict):
 
 class Record:
 
-    def __init__(self, name, phone, email=''):
+    def __init__(self, name, phone, email_value=None):
         self.name = name
         self.phones = []
         self.phones.append(phone)
-        self.email = email  # add email
+        self.email = None
+
+        if email_value:
+            self.email = Email('')
+            self.email = email_value  # add email if not empty
+
         self.birthday = None
 
     def __repr__(self) -> str:
@@ -130,6 +135,11 @@ class Record:
         self.birthday = Birthday('')
         self.birthday.value = date_val
         print(f'{self.birthday} BDay record was added for {self.name.value}!')
+
+
+    def set_email(self, email_val):
+        self.email.value = email_val
+        print(f'{self.email} email record was added for {self.name.value}!')
 
 
 class Field:
@@ -207,20 +217,27 @@ class Phone(Field):
     @staticmethod
     def valid_phone(phone: str):
         if 10 <= len(phone) <= 13:
-            if phone.removeprefix('+').isdigit():
+            if phone.replace('+', ' ').isdigit():
                 return True
         else:
             return False
 
     @staticmethod
     def convert_phone_number(phone: str):
+
         correct_phone_number = ''
+
         if phone.startswith('+380') and len(phone) == 13:
             correct_phone_number = phone
         elif phone.startswith('80') and len(phone) == 11:
             correct_phone_number = '+3' + phone
         elif phone.startswith('0') and len(phone) == 10:
             correct_phone_number = '+38' + phone
+        else:
+            print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
+                  'formats: +380001112233 or 80001112233 or 0001112233')
+            raise WrongArgumentFormat
+        
         return correct_phone_number
 
     @value.setter
@@ -262,7 +279,7 @@ class Email(Field):
         else:
             print('The email address is not valid! Must contain min 2 characters before "@" and 2-3 symbols in TLD! '
                   'Example: aa@example.net or aa@example.com.ua')
-            raise ValueError
+            raise WrongArgumentFormat
 
 
 def deconstruct_command(input_line: str) -> list:
@@ -368,11 +385,18 @@ def add_record(adr_book, line_list):
     name = Name(line_list[1])
     phone_number = Phone('')
     phone_number.value = line_list[2]
-    email = Email('')
-    email.value = line_list[3]  # add Email from list
+
+    try: 
+        line_list[3]
+    except IndexError:
+          email = Email('')
+    else:
+        email = Email('')
+        email.value = line_list[3]  # add Email from list
+   
     record = Record(name, phone_number, email)
     adr_book.add_record(record)
-    print(f'Added record for {name.value} with {phone_number.value}, and email {email.value} my lord.')
+    print(f'Added record for {name.value} with {phone_number.value}, and email \'{email.value}\' my lord.')
 
 
 @command_phone_operations_check_decorator
@@ -540,6 +564,21 @@ def show_some_items(adr_book, *_):
         else:
             print('I do not understand the command!')
 
+@command_phone_operations_check_decorator
+def set_email(adr_book, line_list, *_):
+
+    record_name = line_list[1]
+
+    try:
+        adr_book.data[record_name]
+    except KeyError:
+        print(f'Cannot find name {record_name} in the list!')
+        return
+    
+    email_val = input('Please set the email like "myemail@google.com": ')
+
+    if email_val:
+        adr_book.data[record_name].set_email(email_val)
 
 @command_phone_operations_check_decorator
 def set_birthday(adr_book, line_list, *_):
@@ -554,6 +593,14 @@ def set_birthday(adr_book, line_list, *_):
     date_val = input('Please set the birthday date like "10 January 2020": ')
     adr_book.data[record_name].set_birthday(date_val)
 
+@command_phone_operations_check_decorator
+def show_email(adr_book, line_list, *_):
+    record_name = line_list[1]
+
+    if adr_book.data[record_name].email.value:
+        print(f'It is {adr_book.data[record_name].email}')
+    else:
+        print('It is EMPTY!')
 
 @command_phone_operations_check_decorator
 def show_birthday(adr_book, line_list, *_):
@@ -572,7 +619,9 @@ command_list = {'not save': close_without_saving,
                 'show some': show_some_items,
                 'delete phone': delete_phone,
                 'set bday': set_birthday,
+                'set email': set_email,
                 'show bday': show_birthday,
+                'show email': show_email,
                 'find': find,
                 'help': help,
                 'bday in': show_bday_in_days}
@@ -581,7 +630,8 @@ command_list = {'not save': close_without_saving,
 # main
 def main():
 
-    adr_book = load()
+    # adr_book = load()
+    adr_book = ab
     help()
 
     while True:
@@ -598,7 +648,7 @@ def main():
 if __name__ == '__main__':
     name = Name('Bill')
     phone = Phone('1234567890')
-    email = Email('test@gmail.com')
+    email = Email('')
     rec = Record(name, phone, email)
     ab = AddressBook()
     ab.add_record(rec)
@@ -610,20 +660,23 @@ if __name__ == '__main__':
     assert ab['Bill'].phones[0].value == '1234567890'
 
     rec.set_birthday('10 January 2020')
+    rec.set_email('test@gmail.com')
     print(ab['Bill'].birthday)
 
     name = Name('John')
     phone = Phone('1234567890')
-    email = Email('test@gmail.com')
+    email = Email('')
     rec = Record(name, phone, email)
     rec.set_birthday('10 September 2020')
+    rec.set_email('test@gmail.com')
     ab.add_record(rec)
 
     name = Name('Mike')
     phone = Phone('1234567890')
-    email = Email('test@gmail.com')
+    email = Email('')
     rec = Record(name, phone, email)
     rec.set_birthday('10 July 2020')
+    rec.set_email('test@gmail.com')
     ab.add_record(rec)
 
     print('All Ok)')
