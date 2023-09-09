@@ -100,13 +100,15 @@ def main():
         print("4. Add Tag(Додати тег)")
         print("5. Sort Notes(Сортування)")
         print("6. List Notes(Вивести список)")
-        print("7. Exit")
+        print("7. Search Notes(Пошук)")
+        print("8. Exit")
 
 
-        choice = input("Enter command >>> ")
         if choice == '1':
+    
             # додати нотатку.
             title = input("Enter the title: ")
+
             for existing_note in notebook.notes:
                 if existing_note.title.casefold() == title.casefold():
                     print("Note with the same title already exists.")
@@ -117,20 +119,31 @@ def main():
                 tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
                 note = Note(title, content, tags)
                 notebook.add_note(note)
-                print("Note added successfully!")
+
 
         elif choice == '2':
+          
             # Редагувати нотатку.
             title = input("Enter the title of the note to edit: ")
-            if notebook.edit_note(title):
-                print("Note edited!")
+
+            if notebook.edit_note(title, new_content):
+                print("Note edited successfully!")
+            else:
+                print("Note not found!")
+
 
         elif choice == '3':
+          
             # Видалити нотатку.
             title = input("Enter the title of the note to delete: ")
-            notebook.delete_note(title)
+            
+            if notebook.delete_note(title):
+                print("Note deleted successfully!")
+            else:
+                print("Note not found!")
 
         elif choice == '4':
+          
             # Додати тег до нотатки.
             title = input("Enter the title of the note to add a tag: ")
             note = notebook.find_note(title)
@@ -142,19 +155,43 @@ def main():
                 print("Tag added successfully!")
 
         elif choice == '5':
-            # Сортування нотаток.
+          
+            # Сортування нотаток за ключовим словом.
             keyword = input("Enter a keyword to sort notes by: ")
-            sorted_notes = notebook.sort_notes_by_tags(keyword)
-            for i, note in enumerate(sorted_notes, start=1):
-                print(f"{i}. {note.title}")
+            # Створюємо список.
+            notes_with_keyword = [(note, keyword in note.title or keyword in note.content) for note in notebook.notes]
+            # Сортуємо список(спочатку нотатки з ключовим словом).
+            sorted_notes = sorted(notes_with_keyword, key=lambda x: x[1], reverse=True)
+            # Виводимо.           
+            for note, _ in sorted_notes:
+                print(note)
 
         elif choice == '6':
+          
             # Вивести список нотаток.
             notebook.list_notes()
 
         elif choice == '7':
+          
+            # Пошук нотаток за ключовим словом.
+            keyword = input("Enter the keyword to search notes by: ")
+            matching_notes = notebook.search_notes(keyword)
+            if matching_notes:
+                print("Знайдені нотатки:")
+                for note in matching_notes:
+                    print(note)
+            else:
+                print("Нотатки з таким ключовим словом не знайдено.")
+
+                
+        elif choice == '8':
+
             print("Bye...")
             break
+            
+        else:
+            print('I do not understand the command!')
 
 if __name__ == "__main__":
+
     main()
