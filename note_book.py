@@ -30,13 +30,17 @@ class Notebook():
 
     def search_notes(self, keyword):
         """Пошук нотаток за ключовим словом."""
+        keyword = keyword.lower()  # Перетворити ключове слово до нижнього регістру для нечутливого до регістру пошуку.
         matching_notes = []
         for note in self.notes:
-            # Перевіряємо, чи містить нотатка ключове слово у заголовку або вмісті
-            if keyword in note.title or keyword in note.content:
+            # Перевіряємо, чи містить нотатка ключове слово у заголовку або вмісті, також перетворюючи їх до нижнього регістру.
+            if keyword in note.title.lower() or keyword in note.content.lower() or keyword in note.tags:
                 matching_notes.append(note)
         return matching_notes
+
     
+    
+  ####  
     
     def edit_note(self, title, new_content):
 
@@ -57,6 +61,7 @@ class Notebook():
                 return True
 
         return False
+
 
 def main():
 
@@ -86,6 +91,7 @@ def main():
             else:
                 content = input("Enter the content: ")
                 tags = input("Enter tags: ").split(', ')
+                
                 note = Note(title, content, tags)
                 notebook.add_note(note)
                 #print("Note added successfully!")
