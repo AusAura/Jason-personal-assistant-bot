@@ -74,7 +74,7 @@ class AddressBook(UserDict):
 
 class Record:
 
-    def __init__(self, name, phone, email):
+    def __init__(self, name, phone, email=''):
         self.name = name
         self.phones = []
         self.phones.append(phone)
