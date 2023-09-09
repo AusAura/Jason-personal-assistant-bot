@@ -630,8 +630,8 @@ command_list = {'not save': close_without_saving,
 # main
 def main():
 
-    # adr_book = load()
-    adr_book = ab
+    adr_book = load()
+    # adr_book = ab
     help()
 
     while True:
