@@ -74,15 +74,20 @@ class AddressBook(UserDict):
 
 class Record:
 
-    def __init__(self, name, phone, email_value=None):
+    def __init__(self, name, phone, email_value=None, address_value=None):
         self.name = name
         self.phones = []
         self.phones.append(phone)
         self.email = None
+        self.address = None
 
         if email_value:
             self.email = Email('')
             self.email = email_value  # add email if not empty
+
+        if address_value:
+            self.address = Address('')
+            self.address = address_value
 
         self.birthday = None
 
@@ -280,6 +285,23 @@ class Email(Field):
             print('The email address is not valid! Must contain min 2 characters before "@" and 2-3 symbols in TLD! '
                   'Example: aa@example.net or aa@example.com.ua')
             raise WrongArgumentFormat
+        
+
+class Address(Field):
+
+    def __init__(self, value):
+        self.__value = value
+
+    def __repr__(self):
+        return f"{self.__value}"
+    
+    @property
+    def value(self):
+        return self.__value
+    
+    @value.setter
+    def value(self, new_value):
+        self.__value = new_value
 
 
 def deconstruct_command(input_line: str) -> list:
@@ -329,7 +351,8 @@ def load():
                 row_name = Name(record_data['Name'])
                 row_birthday = Birthday(record_data['Birthday'])
                 row_email = Email(record_data['Email'])
-                record = Record(row_name, '', row_email)
+                row_address = Address(record_data['Address'])
+                record = Record(row_name, '', row_email, row_address)
 
                 row_phones = record_data['Phones']
 
@@ -358,6 +381,7 @@ def save(adr_book):
             'Name': record.name.value,
             'Phones': [phone.value for phone in record.phones],
             'Email': record.email.value,
+            'Address': record.address.value,
             'Birthday': record.birthday.value
         }
         data.append(record_data)
@@ -379,7 +403,7 @@ def perform_command(command: str, adr_book, *args, **kwargs) -> None:
 ## curry functions
 @command_phone_operations_check_decorator
 def add_record(adr_book, line_list):
-    if len(line_list) > 4:
+    if len(line_list) > 5:
         raise ExcessiveArguments
 
     name = Name(line_list[1])
@@ -393,10 +417,18 @@ def add_record(adr_book, line_list):
     else:
         email = Email('')
         email.value = line_list[3]  # add Email from list
+
+    try:
+        line_list[4]
+    except IndexError:
+        address = Address('')
+    else:
+        address = Address('')
+        address.value = line_list[4]
    
-    record = Record(name, phone_number, email)
+    record = Record(name, phone_number, email, address)
     adr_book.add_record(record)
-    print(f'Added record for {name.value} with {phone_number.value}, and email \'{email.value}\' my lord.')
+    print(f'Added record for {name.value} with {phone_number.value}, email \'{email.value}\', and address \'{address.value}\' my lord.')
 
 
 @command_phone_operations_check_decorator
@@ -594,6 +626,19 @@ def set_birthday(adr_book, line_list, *_):
     adr_book.data[record_name].set_birthday(date_val)
 
 @command_phone_operations_check_decorator
+def set_address(adr_book, line_list, *_):
+    
+    record_name = line_list[1]
+
+    try:
+        adr_book.data[record_name]
+    except KeyError:
+        print(f'Cannot find name {record_name} in the list!')
+        return
+    address_val = input('Please set the address: ')
+    adr_book.data[record_name].set_address(address_val)
+
+@command_phone_operations_check_decorator
 def show_email(adr_book, line_list, *_):
     record_name = line_list[1]
 
@@ -606,6 +651,17 @@ def show_email(adr_book, line_list, *_):
 def show_birthday(adr_book, line_list, *_):
     record_name = line_list[1]
     adr_book.data[record_name]._days_to_birthday()
+
+@command_phone_operations_check_decorator
+def show_address(adr_book, line_list, *_):
+
+    record_name = line_list[1]
+    address = adr_book.data[record_name].address.value
+
+    if address:
+        print(f"Address for {record_name}: {address}")
+    else:
+        print(f"No address is set for {record_name}")
 
 
 command_list = {'not save': close_without_saving,
@@ -620,8 +676,10 @@ command_list = {'not save': close_without_saving,
                 'delete phone': delete_phone,
                 'set bday': set_birthday,
                 'set email': set_email,
+                'set address': set_address,
                 'show bday': show_birthday,
                 'show email': show_email,
+                'show address': show_address,
                 'find': find,
                 'help': help,
                 'bday in': show_bday_in_days}
