@@ -636,7 +636,8 @@ def set_address(adr_book, line_list, *_):
         print(f'Cannot find name {record_name} in the list!')
         return
     address_val = input('Please set the address: ')
-    adr_book.data[record_name].set_address(address_val)
+    adr_book.data[record_name].address = address_val
+    print(f'Address {address_val} was set successfully for {record_name}!')
 
 @command_phone_operations_check_decorator
 def show_email(adr_book, line_list, *_):
@@ -656,7 +657,7 @@ def show_birthday(adr_book, line_list, *_):
 def show_address(adr_book, line_list, *_):
 
     record_name = line_list[1]
-    address = adr_book.data[record_name].address.value
+    address = adr_book.data[record_name].address
 
     if address:
         print(f"Address for {record_name}: {address}")
@@ -688,8 +689,8 @@ command_list = {'not save': close_without_saving,
 # main
 def main():
 
-    adr_book = load()
-    # adr_book = ab
+    # adr_book = load()
+    adr_book = ab
     help()
 
     while True:
@@ -707,7 +708,10 @@ if __name__ == '__main__':
     name = Name('Bill')
     phone = Phone('1234567890')
     email = Email('')
-    rec = Record(name, phone, email)
+    adress = Address('')
+    adress = '40 street 122, 55'
+    print(adress)
+    rec = Record(name, phone, email, adress)
     ab = AddressBook()
     ab.add_record(rec)
 
@@ -724,7 +728,9 @@ if __name__ == '__main__':
     name = Name('John')
     phone = Phone('1234567890')
     email = Email('')
-    rec = Record(name, phone, email)
+    adress = Address('')
+    adress = '40 street 122, 55'
+    rec = Record(name, phone, email, adress)
     rec.set_birthday('10 September 2020')
     rec.set_email('test@gmail.com')
     ab.add_record(rec)
@@ -732,7 +738,9 @@ if __name__ == '__main__':
     name = Name('Mike')
     phone = Phone('1234567890')
     email = Email('')
-    rec = Record(name, phone, email)
+    adress = Address('')
+    adress = '40 street 122, 55'
+    rec = Record(name, phone, email, adress)
     rec.set_birthday('10 July 2020')
     rec.set_email('test@gmail.com')
     ab.add_record(rec)
