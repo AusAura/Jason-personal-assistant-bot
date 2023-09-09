@@ -33,6 +33,15 @@ class Notebook:
         #else:
             #print("Invalid format. Title >= 5, content >=  20,tags <= 5.")
 
+    def search_notes(self, keyword):
+        """Пошук нотаток за ключовим словом."""
+        keyword = keyword.lower()  # Перетворити ключове слово до нижнього регістру для нечутливого до регістру пошуку.
+        matching_notes = []
+        for note in self.notes:
+            # Перевіряємо, чи містить нотатка ключове слово у заголовку або вмісті, також перетворюючи їх до нижнього регістру.
+            if keyword in note.title.lower() or keyword in note.content.lower() or keyword in note.tags:
+                matching_notes.append(note)
+        return matching_notes
 
     def find_note(self, title):
         title = title.casefold()
@@ -74,8 +83,8 @@ class Notebook:
                 sorted_notes.append(note)
 
         sorted_notes.sort(key=lambda x: x.title.casefold())
-
         return sorted_notes
+
 
     def list_notes(self):
         if not self.notes:
