@@ -26,7 +26,8 @@ def command_phone_operations_check_decorator(func):
             print('Argument type is not acceptable!', error)
             return
         except ValueError as error:
-            print(f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
+            print(
+                f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
             return
         except IndexError as error:
             print(f'Not enough arguments for {func.__name__}!', error)
@@ -39,7 +40,8 @@ def command_phone_operations_check_decorator(func):
             print('Such command (or object) does not exist!', error)
             return
         except ExcessiveArguments as error:
-            print(f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
+            print(
+                f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
             return
         except WrongArgumentFormat:
             return
@@ -52,12 +54,18 @@ class AddressBook(UserDict):
     def add_record(self, record, *_):
         self.data.update({record.name.value: record})
 
+    def delete_record(self, contact_name):
+        if str(contact_name) in self.data:
+            del self.data[str(contact_name)]
+            return None
+
     def iterator(self, n):
         counter = 0
 
         if n > len(self.data):
             n = len(self.data)
-            print(f'Seems like there is only {len(self.data)} items in the book!')
+            print(
+                f'Seems like there is only {len(self.data)} items in the book!')
             counter = len(self.data) + 1
 
         for key, value in self.data.items():
@@ -172,10 +180,12 @@ class Birthday(Field):
     def _days_to_birthday(self):
 
         datenow = datetime.now().date()
-        future_bday_date = datetime(year=datenow.year, month=self.value.month, day=self.value.day).date()
+        future_bday_date = datetime(
+            year=datenow.year, month=self.value.month, day=self.value.day).date()
 
         if future_bday_date < datenow:
-            future_bday_date = datetime(year=datenow.year + 1, month=self.value.month, day=self.value.day).date()
+            future_bday_date = datetime(
+                year=datenow.year + 1, month=self.value.month, day=self.value.day).date()
 
         delta = future_bday_date - datenow
         pure_days = delta.days % 365
@@ -191,7 +201,8 @@ class Birthday(Field):
         try:
             self.__value = datetime.strptime(new_value, '%d %B %Y').date()
         except ValueError:
-            print('Your data format is not correct! Please use this one: "10 January 2020"')
+            print(
+                'Your data format is not correct! Please use this one: "10 January 2020"')
             raise WrongArgumentFormat
 
     def __repr__(self) -> str:
@@ -357,6 +368,7 @@ def load():
                 row_phones = record_data['Phones']
 
                 if row_phones:
+
                     row_normalized_phones = row_phones.split(',')
                     row_serialized_phones = [Phone(phone) for phone in row_normalized_phones]
 
@@ -375,6 +387,7 @@ def load():
 
 def save(adr_book):
     data = []
+
 
     for record in adr_book.data.values():
         record_data = {
@@ -400,7 +413,7 @@ def perform_command(command: str, adr_book, *args, **kwargs) -> None:
     command_list[command](adr_book, *args, **kwargs)
 
 
-## curry functions
+# curry functions
 @command_phone_operations_check_decorator
 def add_record(adr_book, line_list):
     if len(line_list) > 5:
@@ -484,6 +497,18 @@ def delete_phone(adr_book, line_list) -> None:
         return
 
     adr_book.data[record_name].delete_phone(phone)
+
+
+@command_phone_operations_check_decorator
+def delete_record(adr_book, line_list):
+    if len(line_list) > 3:
+        raise ExcessiveArguments
+    if line_list[1] in adr_book.data:
+        name = Name(line_list[1])
+        adr_book.delete_record(name)
+        print(f'Removed record for {line_list[1]}, my lord.')
+    else:
+        print("No such phone record!")
 
 
 def close_without_saving(*_):
@@ -675,6 +700,7 @@ command_list = {'not save': close_without_saving,
                 'show all': show_all_items,
                 'show some': show_some_items,
                 'delete phone': delete_phone,
+                'delete contact': delete_record,
                 'set bday': set_birthday,
                 'set email': set_email,
                 'set address': set_address,
