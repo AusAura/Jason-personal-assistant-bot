@@ -54,6 +54,11 @@ class AddressBook(UserDict):
     def add_record(self, record, *_):
         self.data.update({record.name.value: record})
 
+    def delete_record(self, contact_name):
+        if str(contact_name) in self.data:
+            del self.data[str(contact_name)]
+            return None
+
     def iterator(self, n):
         counter = 0
 
@@ -425,6 +430,18 @@ def delete_phone(adr_book, line_list) -> None:
     adr_book.data[record_name].delete_phone(phone)
 
 
+@command_phone_operations_check_decorator
+def delete_record(adr_book, line_list):
+    if len(line_list) > 3:
+        raise ExcessiveArguments
+    if line_list[1] in adr_book.data:
+        name = Name(line_list[1])
+        adr_book.delete_record(name)
+        print(f'Removed record for {line_list[1]}, my lord.')
+    else:
+        print("No such phone record!")
+
+
 def close_without_saving(*_):
     print('Will NOT save! BB!')
     exit()
@@ -541,6 +558,7 @@ command_list = {'not save': close_without_saving,
                 'show all': show_all_items,
                 'show some': show_some_items,
                 'delete phone': delete_phone,
+                'delete contact': delete_record,
                 'set bday': set_birthday,
                 'show bday': show_birthday,
                 'find': find,
