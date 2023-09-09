@@ -104,6 +104,8 @@ def main():
         print("8. Exit")
 
 
+        choice = input('Please select one of the options: ')
+
         if choice == '1':
     
             # додати нотатку.
@@ -126,10 +128,8 @@ def main():
             # Редагувати нотатку.
             title = input("Enter the title of the note to edit: ")
 
-            if notebook.edit_note(title, new_content):
+            if notebook.edit_note(title):
                 print("Note edited successfully!")
-            else:
-                print("Note not found!")
 
 
         elif choice == '3':

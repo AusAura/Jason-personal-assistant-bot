@@ -1,5 +1,5 @@
 from collections import UserDict
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import re
 
@@ -493,6 +493,31 @@ def show_all_items(adr_book, *_) -> None:
 
 
 @command_phone_operations_check_decorator
+def show_bday_in_days(adr_book, *_) -> None:
+
+    days_timeframe = input('In how many days you want to see BDays of your victims? ')
+    print('*' * 10)
+    datetime_timedelta = timedelta(days=int(days_timeframe))
+    is_empty = True
+
+    print(f'You wanted to see Bdays in {days_timeframe} days! Here we go: ')
+    
+    for record in adr_book.data.values():
+
+        record_timedelta = timedelta(days=record.birthday._days_to_birthday())
+
+        if record_timedelta <= datetime_timedelta:
+            print('=' * 10)
+            print(f'{record.name} will have a BDay in {record_timedelta.days}! ({record.birthday})')
+            print(f'His data: {record.phones}, {record.email}')
+
+            is_empty = False
+
+    if is_empty:
+        print('Sorry! Seems like nobody have BDays in the set timeframe!')
+
+
+@command_phone_operations_check_decorator
 def show_some_items(adr_book, *_):
     n = input('How much records to show at a time? ')
     iterator = adr_book.iterator(int(n))
@@ -549,15 +574,19 @@ command_list = {'not save': close_without_saving,
                 'set bday': set_birthday,
                 'show bday': show_birthday,
                 'find': find,
-                'help': help}
+                'help': help,
+                'bday in': show_bday_in_days}
 
 
 # main
 def main():
+
     adr_book = load()
     help()
 
     while True:
+
+        print('*' * 10)
         input_line = input('Put your request here: ')
 
         line_list = deconstruct_command(input_line)
@@ -579,6 +608,23 @@ if __name__ == '__main__':
     assert isinstance(ab['Bill'].phones, list)
     assert isinstance(ab['Bill'].phones[0], Phone)
     assert ab['Bill'].phones[0].value == '1234567890'
+
+    rec.set_birthday('10 January 2020')
+    print(ab['Bill'].birthday)
+
+    name = Name('John')
+    phone = Phone('1234567890')
+    email = Email('test@gmail.com')
+    rec = Record(name, phone, email)
+    rec.set_birthday('10 September 2020')
+    ab.add_record(rec)
+
+    name = Name('Mike')
+    phone = Phone('1234567890')
+    email = Email('test@gmail.com')
+    rec = Record(name, phone, email)
+    rec.set_birthday('10 July 2020')
+    ab.add_record(rec)
 
     print('All Ok)')
 
