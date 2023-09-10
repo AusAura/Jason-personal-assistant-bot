@@ -54,7 +54,7 @@ class AddressBook(UserDict):
         super().__init__()
         self.count = 0
         self.call_List = list(self.data.keys())
-        with open('Untitled/file_address_book.json') as reader:
+        with open('save.json') as reader:
             try:
                 file_data = json.load(reader)
                 for item in file_data:
@@ -73,7 +73,7 @@ class AddressBook(UserDict):
                     self.data[item['name']] = record
             except json.decoder.JSONDecodeError:
                 file_data = []
-        # print(self.data)
+        print(self.data)
 
     def add_record(self, record, *_):
         self.data.update({record.name.value: record})
@@ -85,7 +85,7 @@ class AddressBook(UserDict):
 
     def close_record_data(self):
         file_data = []
-        print(self.data)
+        # print(self.data)
         for record in self.data.values():
             write_dict = {}
             write_dict["name"] = record.name.value
@@ -97,7 +97,7 @@ class AddressBook(UserDict):
             write_dict["address"] = str(
                 record.address) if record.address else ''
             file_data.append(write_dict)
-        with open('Untitled/file_address_book.json', 'w') as writer:
+        with open('save.json', 'w') as writer:
             json.dump(file_data, writer, indent=4)
 
     def iterator(self, n):
@@ -396,39 +396,36 @@ def deconstruct_command(input_line: str) -> list:
 
 
 # load/save
-def load():
-    adr_book = AddressBook()
+# def load():
+#     adr_book = AddressBook()
 
-    try:
-        with open('save.json', 'r') as json_file:
-            data = json.load(json_file)
+#     try:
+#         with open('save.json', 'r') as json_file:
+#             data = json.load(json_file)
 
-            for record_data in data:
-                row_name = Name(record_data['Name'])
-                row_birthday = Birthday(record_data['Birthday'])
-                row_email = Email(record_data['Email'])
-                row_address = Address(record_data['Address'])
-                record = Record(row_name, '', row_email, row_address)
+#             for record_data in data:
+#                 row_name = Name(record_data['name'])
+#                 row_birthday = Birthday(record_data['Date of birth'])
+#                 row_email = Email(record_data['email'])
+#                 row_address = Address(record_data['address'])
+#                 record = Record(row_name, '', row_email, row_address)
 
-                row_phones = record_data['Phones']
+#                 row_phones = record_data['Phone number']
 
-                if row_phones:
 
-                    row_normalized_phones = row_phones.split(',')
-                    row_serialized_phones = [
-                        Phone(phone) for phone in row_normalized_phones]
+#                 record.phones = row_phones
 
-                else:
-                    row_serialized_phones = ''
+#                 if row_birthday:
+#                     record.birthday = row_birthday
+#                 else:
+#                     record.birthday = None
 
-                record.phones = row_serialized_phones
-                record.birthday = row_birthday
-                adr_book.add_record(record)
+#                 adr_book.add_record(record)
 
-    except FileNotFoundError:
-        print('Have not found created address book. Nothing to load from.')
+#     except FileNotFoundError:
+#         print('Have not found created address book. Nothing to load from.')
 
-    return adr_book
+#     return adr_book
 
 
 def save(adr_book):
@@ -577,24 +574,24 @@ def find(adr_book, line_list):
 
         if record.name.value.find(str_to_find) != -1:
             is_empty = False
-            print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         elif record.email.value.find(str_to_find) != -1:
             is_empty = False
-            print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
-        elif record.address.find(str_to_find) != -1:
+        elif record.address.value.find(str_to_find) != -1:
             is_empty = False
-            print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         for phone in record.phones:
 
-            if phone.value.find(str_to_find) != -1:
+            if phone.find(str_to_find) != -1:
                 is_empty = False
-                print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+                print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
                 break
 
     if is_empty:
@@ -830,7 +827,8 @@ command_description = {'not save': 'Close adress book without saving',
 # main
 def main():
 
-    adr_book = load()
+    adr_book = AddressBook()
+    # adr_book = load()
     # adr_book = ab
     print('*' * 10)
     hello()
@@ -853,45 +851,45 @@ def main():
 
 # Execute
 if __name__ == '__main__':
-    name = Name('Bill')
-    phone = Phone('1234567890')
-    email = Email('')
-    adress = Address('')
-    adress = '40 street 122, 55'
-    print(adress)
-    rec = Record(name, phone, email, adress)
-    ab = AddressBook()
-    ab.add_record(rec)
+    # name = Name('Bill')
+    # phone = Phone('1234567890')
+    # email = Email('')
+    # adress = Address('')
+    # adress = '40 street 122, 55'
+    # print(adress)
+    # rec = Record(name, phone, email, adress)
+    # ab = AddressBook()
+    # ab.add_record(rec)
 
-    assert isinstance(ab['Bill'], Record)
-    assert isinstance(ab['Bill'].name, Name)
-    assert isinstance(ab['Bill'].phones, list)
-    assert isinstance(ab['Bill'].phones[0], Phone)
-    assert ab['Bill'].phones[0].value == '1234567890'
+    # assert isinstance(ab['Bill'], Record)
+    # assert isinstance(ab['Bill'].name, Name)
+    # assert isinstance(ab['Bill'].phones, list)
+    # assert isinstance(ab['Bill'].phones[0], Phone)
+    # assert ab['Bill'].phones[0].value == '1234567890'
 
-    rec.set_birthday('10 January 2020')
-    rec.set_email('test@gmail.com')
-    print(ab['Bill'].birthday)
+    # rec.set_birthday('10 January 2020')
+    # rec.set_email('test@gmail.com')
+    # print(ab['Bill'].birthday)
 
-    name = Name('John')
-    phone = Phone('1234567890')
-    email = Email('')
-    adress = Address('')
-    adress = '40 street 122, 55'
-    rec = Record(name, phone, email, adress)
-    rec.set_birthday('10 September 2020')
-    rec.set_email('test@gmail.com')
-    ab.add_record(rec)
+    # name = Name('John')
+    # phone = Phone('1234567890')
+    # email = Email('')
+    # adress = Address('')
+    # adress = '40 street 122, 55'
+    # rec = Record(name, phone, email, adress)
+    # rec.set_birthday('10 September 2020')
+    # rec.set_email('test@gmail.com')
+    # ab.add_record(rec)
 
-    name = Name('Mike')
-    phone = Phone('1234567890')
-    email = Email('')
-    adress = Address('')
-    adress = '40 street 122, 55'
-    rec = Record(name, phone, email, adress)
-    rec.set_birthday('10 July 2020')
-    rec.set_email('test@gmail.com')
-    ab.add_record(rec)
+    # name = Name('Mike')
+    # phone = Phone('1234567890')
+    # email = Email('')
+    # adress = Address('')
+    # adress = '40 street 122, 55'
+    # rec = Record(name, phone, email, adress)
+    # rec.set_birthday('10 July 2020')
+    # rec.set_email('test@gmail.com')
+    # ab.add_record(rec)
 
     print('All Ok)')
 
