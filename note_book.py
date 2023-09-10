@@ -1,6 +1,3 @@
-# """зберігати нотатки з текстовою інформацією
-# проводити пошук за нотатками"""
-
 import json
 import os
 from prompt_toolkit import prompt
@@ -41,8 +38,8 @@ class Notebook:
                 raise InvalidFormatError("Invalid format. Title >= 5.")
             if len(note.content) < 20:
                 raise InvalidFormatError("Invalid format. Content >= 20.")"""
-            if any(1 <= len(tag) <= 5 for tag in note.tags):
-                raise InvalidFormatError("Invalid format. Tags <= 5")
+            if any(len(tag) > 20 for tag in note.tags):
+                raise InvalidFormatError("Invalid format. Tags <= 20")
         
             # Перевірка на однакові назви
             title = note.title.casefold()
@@ -198,9 +195,14 @@ def main():
                 print("Note not found!")
                 
             else:
-                new_tags = input("Enter the new tags: ").split()
-                if all(1 <= len(tag) <= 5 for tag in new_tags):
-                  
+                new_tags_input = input("Enter the new tags (comma-separated or space-separated): ")
+                new_tags = [tag.strip() for tag in new_tags_input.replace(',', ' ').split()]
+    
+                if not new_tags:
+                    print("Invalid format. Tags can't be empty.")
+          
+                elif all(len(tag) < 20 for tag in new_tags):
+              
                     if any(tag.casefold() in note.tags for tag in new_tags):
                         print("Some tags already exist for this note.")
                     else:
@@ -208,8 +210,8 @@ def main():
                         print("Tags added!")
                         
                 else:
-                    print("Invalid format. Tags should have a length between 1 and 5.")
-
+                    print("Invalid format. Tags <= 20.")
+                    
         elif user_input.casefold() == "sort":
 
             # Сортування нотаток за ключовим словом.
@@ -260,7 +262,6 @@ def main():
             
         else:
             print('I do not understand the command!')
-
 
             
 if __name__ == "__main__":
