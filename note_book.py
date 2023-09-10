@@ -126,13 +126,13 @@ class Notebook:
 
 
 # Команди, які підтримує бот.
-commands = ["add", "edit", "delete", "add_tag", "sort", "list", "search", "load", "save", "exit"]
+commands = ["add", "edit", "delete", "tag", "sort", "list", "search", "load", "save", "exit"]
 
 # Створення автозавершення для команд.
 command_completer = WordCompleter(commands, ignore_case=True)
 
 def get_command_from_user():
-    return prompt("Enter a command (add, edit, delete, add_tag, sort, list, search, load, save, exit): ", completer=command_completer)
+    return prompt("Enter a command: ", completer=command_completer)
 
 def main():
   
@@ -153,6 +153,7 @@ def main():
         print("load = Load Notes(Завантаження)")
         print("save = Save Notes(Зберігання)")
         print("exit = Exit (do not forget to save first!)")
+        print('=' * 10)
       
         user_input = get_command_from_user()
 
