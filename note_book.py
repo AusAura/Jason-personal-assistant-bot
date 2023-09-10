@@ -1,46 +1,61 @@
 # """зберігати нотатки з текстовою інформацією
 # проводити пошук за нотатками"""
 
+import json
+import os
+
 class Note:
 
     def __init__(self, title, content, tags=[]):
 
         self.title = title
         self.content = content
-        
-        # Використовуємо `None`, а не пустий список за замовчуванням
         self.tags = tags if tags is not None else []
 
     def __str__(self):
         return f"Title: {self.title}\nContent: {self.content}\nTags: {', '.join(self.tags)}"
 
+class InvalidFormatError(Exception):
+    pass
 
 class Notebook:
 
-    def __init__(self):
+    def __init__(self, filename="notes.json"):
         self.notes = []
+        self.filename = filename
+        #self.load_notes()
+
+        if not os.path.exists(self.filename):
+            with open(self.filename, 'w') as file:
+                json.dump([], file)
+        else:
+            self.load_notes()
+
 
     def add_note(self, note):
-
-            title = note.title.casefold()
-        #if len(note.title) >= 5 and len(note.content) >= 20 and all(len(tag) <= 5 for tag in note.tags):
+            """if len(note.title) < 5:
+                raise InvalidFormatError("Invalid format. Title >= 5.")
+            if len(note.content) < 20:
+                raise InvalidFormatError("Invalid format. Content >= 20.")"""
+            if any(1 <= len(tag) <= 5 for tag in note.tags):
+                raise InvalidFormatError("Invalid format. Tags <= 5")
+        
             # Перевірка на однакові назви
+            title = note.title.casefold()
             for existing_note in self.notes:
                 if existing_note.title.casefold() == title:
                     print("Note with the same title already exists.")
                     return
             
             self.notes.append(note)
-            print("Note added !")
-        #else:
-            #print("Invalid format. Title >= 5, content >=  20,tags <= 5.")
+            print("Note added!")
+
 
     def search_notes(self, keyword):
         """Пошук нотаток за ключовим словом."""
         keyword = keyword.lower()  # Перетворити ключове слово до нижнього регістру для нечутливого до регістру пошуку.
         matching_notes = []
         for note in self.notes:
-            # Перевіряємо, чи містить нотатка ключове слово у заголовку або вмісті, також перетворюючи їх до нижнього регістру.
             if keyword in note.title.lower() or keyword in note.content.lower() or keyword in note.tags:
                 matching_notes.append(note)
         return matching_notes
@@ -65,18 +80,14 @@ class Notebook:
         note.content = new_content
         print("Note edited!")
         return True
-
+    
     def delete_note(self, title):
         title = title.casefold()
-
-        for note in self.notes:
-
-            if note.title == title:
+        for note in self.notes.copy():
+            if note.title.casefold() == title.casefold():
                 self.notes.remove(note)
-                print("Note deleted!")
-                return
-            
-        print("Note not found!")
+                return True
+        return False
     
     def sort_notes_by_tags(self, tag):
         tag = tag.casefold()
@@ -99,12 +110,22 @@ class Notebook:
                 print(f"   Content: {note.content}")
                 print(f"   Tags: {', '.join(note.tags)}")
 
-        return matching_notes
+    def save_notes(self):
+        data = [{'title': note.title, 'content': note.content, 'tags': note.tags} for note in self.notes]
+        with open(self.filename, 'w') as file:
+            json.dump(data, file)
+
+    def load_notes(self):
+        with open(self.filename, 'r') as file:
+            data = json.load(file)
+            self.notes = [Note(note['title'], note['content'], note['tags']) for note in data]
+
 
 
 def main():
-
-    notebook = Notebook()
+    filename = "notes.json"
+    notebook = Notebook(filename)
+    notebook.load_notes()
 
     while True:
 
@@ -116,47 +137,46 @@ def main():
         print("5. Sort Notes(Сортування)")
         print("6. List Notes(Вивести список)")
         print("7. Search Notes(Пошук)")
-        print("8. Exit")
+        print("8. loaded Notes(Завантаження)")
+        print("9. saved Notes(Зберігання)")
+        print("10. Exit")
 
 
         choice = input('Please select one of the options: ')
 
         
-        if choice == '1':
-    
-            # додати нотатку.
-            title = input("Enter the title: ")
-
-            # Перевірити, чи нотатка з такою назвою вже існує
-            for existing_note in notebook.notes:
-                if existing_note.title.casefold() == title.casefold():
-                    print("Note with the same title already exists.")
-                    break
-            else:
-                content = input("Enter the content: ")
-                tags = input("Enter tags (comma-separated or space-separated): ")
+        if choice == '1':       
+                
+            title = input("Enter Title: ")
+            try:
+                if len(title) < 5:
+                    raise InvalidFormatError("Invalid format. Tags <= 5.")
+                content = input("Enter content: ")
+                if len(content) < 20:
+                    raise InvalidFormatError("Invalid format. Content >= 20.")
+                tags = input("Enter Tags (comma-separated or space-separated): ")
                 tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
                 note = Note(title, content, tags)
                 notebook.add_note(note)
+            except InvalidFormatError as e:
+                print(f"Error: {e}")
 
-                
+                        
         elif choice == '2':
           
             # Редагувати нотатку.
             title = input("Enter the title of the note to edit: ")
 
             if notebook.edit_note(title):
-                print("Note edited successfully!")
+                print("Note edited !")
 
                 
         elif choice == '3':
-          
             # Видалити нотатку.
-            title = input("Enter the title of the note to delete: ")
-
-            if notebook.delete_note(title):
-                print("Note deleted successfully!")
-            else:   
+            title = input("Enter the title of the note to delete: ").strip()
+            if notebook.delete_note(title.casefold()):
+                print("Note deleted!")
+            else:
                 print("Note not found!")
 
                 
@@ -165,37 +185,28 @@ def main():
             # Додати тег до нотатки.
             title = input("Enter the title of the note to add a tag: ")
             note = notebook.find_note(title)
-            is_same_tag_exist = False
             
             if note is None:
                 print("Note not found!")
-            
             else:
-            # Перевірка на однакові теги
-                
-                new_tag = input("Enter the new tag: ")
-              
-                if new_tag.casefold() in note.tags:
-                    print("Same tag already exist for this note.")
-                    is_same_tag_exist = True
-                      
-                if not is_same_tag_exist:
-                  
-                    note.tags.append(new_tag)
-                    print("Tag added successfully!")
-
+                new_tags = input("Enter the new tags: ").split()
+                if all(1 <= len(tag) <= 5 for tag in new_tags):
+                    if any(tag.casefold() in note.tags for tag in new_tags):
+                        print("Some tags already exist for this note.")
+                    else:
+                        note.tags.extend(new_tags)
+                        print("Tags added!")
+                else:
+                    print("Invalid format. Tags <= 5.")
                     
         elif choice == '5':
           
             # Сортування нотаток за ключовим словом.
             keyword = input("Enter a keyword to sort notes by: ")
-            # Створюємо список.
             notes_with_keyword = [
                 (note, keyword in note.title or keyword in note.content) for note in notebook.notes]
-            # Сортуємо список(спочатку нотатки з ключовим словом).
             sorted_notes = sorted(notes_with_keyword,
                                   key=lambda x: x[1], reverse=True)
-            # Виводимо.
             for note, _ in sorted_notes:
                 print(note)
 
@@ -212,21 +223,29 @@ def main():
             keyword = input("Enter the keyword to search notes by: ")
             matching_notes = notebook.search_notes(keyword)
             if matching_notes:
-                print("Знайдені нотатки:")
+                print("Found notes:")
                 for note in matching_notes:
                     print(note)
             else:
-                print("Нотатки з таким ключовим словом не знайдено.")
+                print("No notes found.")
 
-                
         elif choice == '8':
+            filename = input("Enter the filename for loading notes (e.g., notes.json): ")
+            notebook = Notebook(filename)
+            print("Notes loaded from the file.")
 
+        elif choice == '9':
+            notebook.save_notes()
+            print("Notes saved to the file.")
+           
+        elif choice == '10':
+            notebook.save_notes()
+            print("Notes saved to the file.")
             print("Bye...")
             break
             
         else:
             print('I do not understand the command!')
-
 
 if __name__ == "__main__":
 
