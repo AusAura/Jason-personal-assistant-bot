@@ -3,9 +3,12 @@
 
 import json
 import os
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
+
 
 class Note:
-
+  
     def __init__(self, title, content, tags=[]):
 
         self.title = title
@@ -17,6 +20,7 @@ class Note:
 
 class InvalidFormatError(Exception):
     pass
+
 
 class Notebook:
 
@@ -121,57 +125,63 @@ class Notebook:
             self.notes = [Note(note['title'], note['content'], note['tags']) for note in data]
 
 
+# Команди, які підтримує бот.
+commands = ["add", "edit", "delete", "add_tag", "sort", "list", "search", "load", "save", "exit"]
+
+# Створення автозавершення для команд.
+command_completer = WordCompleter(commands, ignore_case=True)
+
+def get_command_from_user():
+    return prompt("Enter a command (add, edit, delete, add_tag, sort, list, search, load, save, exit): ", completer=command_completer)
 
 def main():
+  
     filename = "notes.json"
     notebook = Notebook(filename)
     notebook.load_notes()
 
     while True:
-
+           
         print("\nNotebook Menu:")
-        print("1. Add Note(Додати нот)")
-        print("2. Edit Note(Редагувати вміст)")
-        print("3. Delete Note(Видалити)")
-        print("4. Add Tag(Додати тег)")
+        print("add = Add Note(Додати нот)")
+        print("edit = Edit Note(Редагувати вміст)")
+        print("delete = Delete Note(Видалити)")
+        print("tag = Add Tag(Додати тег)")
         print("5. Sort Notes(Сортування)")
         print("6. List Notes(Вивести список)")
         print("7. Search Notes(Пошук)")
         print("8. loaded Notes(Завантаження)")
         print("9. saved Notes(Зберігання)")
         print("10. Exit")
+      
+        user_input = get_command_from_user()
 
-
-        choice = input('Please select one of the options: ')
-
-        
-        if choice == '1':       
-                
+        if user_input.casefold() == "add":
+            # Додати нотатку.
             title = input("Enter Title: ")
             try:
+              
                 if len(title) < 5:
-                    raise InvalidFormatError("Invalid format. Tags <= 5.")
+                    raise InvalidFormatError("Invalid format. Title length should be >= 5.")
                 content = input("Enter content: ")
+                
                 if len(content) < 20:
-                    raise InvalidFormatError("Invalid format. Content >= 20.")
+                    raise InvalidFormatError("Invalid format. Content length should be >= 20.")
+
                 tags = input("Enter Tags (comma-separated or space-separated): ")
                 tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
                 note = Note(title, content, tags)
                 notebook.add_note(note)
-            except InvalidFormatError as e:
-                print(f"Error: {e}")
-
                         
-        elif choice == '2':
+        elif user_input.casefold() == "edit":
           
             # Редагувати нотатку.
             title = input("Enter the title of the note to edit: ")
 
             if notebook.edit_note(title):
-                print("Note edited !")
+                print("Note edited!")
 
-                
-        elif choice == '3':
+        elif user_input.casefold() == "delete":
             # Видалити нотатку.
             title = input("Enter the title of the note to delete: ").strip()
             if notebook.delete_note(title.casefold()):
@@ -179,28 +189,29 @@ def main():
             else:
                 print("Note not found!")
 
-                
-        elif choice == '4':
-              
+        elif user_input.casefold() == "tag":
             # Додати тег до нотатки.
             title = input("Enter the title of the note to add a tag: ")
             note = notebook.find_note(title)
-            
+
             if note is None:
                 print("Note not found!")
+                
             else:
                 new_tags = input("Enter the new tags: ").split()
                 if all(1 <= len(tag) <= 5 for tag in new_tags):
+                  
                     if any(tag.casefold() in note.tags for tag in new_tags):
                         print("Some tags already exist for this note.")
                     else:
                         note.tags.extend(new_tags)
                         print("Tags added!")
+                        
                 else:
-                    print("Invalid format. Tags <= 5.")
-                    
-        elif choice == '5':
-          
+                    print("Invalid format. Tags should have a length between 1 and 5.")
+
+        elif user_input.casefold() == "sort":
+
             # Сортування нотаток за ключовим словом.
             keyword = input("Enter a keyword to sort notes by: ")
             notes_with_keyword = [
@@ -211,14 +222,13 @@ def main():
                 print(note)
 
                 
-        elif choice == '6':
-          
+        elif user_input.casefold() == "list":
+    
             # Вивести список нотаток.
             notebook.list_notes()
 
-            
-        elif choice == '7':
-          
+        elif user_input.casefold() == "search":
+
             # Пошук нотаток за ключовим словом.
             keyword = input("Enter the keyword to search notes by: ")
             matching_notes = notebook.search_notes(keyword)
@@ -229,24 +239,31 @@ def main():
             else:
                 print("No notes found.")
 
-        elif choice == '8':
-            filename = input("Enter the filename for loading notes (e.g., notes.json): ")
-            notebook = Notebook(filename)
+                
+        elif user_input.casefold() == "load":
+            # new_filename = input("Enter the filename for loading notes (e.g., notes.json): ")
+            new_filename = 'notes.json'
+            notebook = Notebook(new_filename)
+            notebook.load_notes()
             print("Notes loaded from the file.")
 
-        elif choice == '9':
+        elif user_input.casefold() == "save":
             notebook.save_notes()
             print("Notes saved to the file.")
-           
-        elif choice == '10':
-            notebook.save_notes()
-            print("Notes saved to the file.")
+
+        elif user_input.casefold() == "exit":
+
+            # notebook.save_notes()
+            # print("Notes saved to the file.")
             print("Bye...")
             break
             
         else:
             print('I do not understand the command!')
 
-if __name__ == "__main__":
+        else:
+            print('I do not understand the command!')
 
+            
+if __name__ == "__main__":
     main()
