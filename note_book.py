@@ -147,12 +147,12 @@ def main():
         print("edit = Edit Note(Редагувати вміст)")
         print("delete = Delete Note(Видалити)")
         print("tag = Add Tag(Додати тег)")
-        print("5. Sort Notes(Сортування)")
-        print("6. List Notes(Вивести список)")
-        print("7. Search Notes(Пошук)")
-        print("8. loaded Notes(Завантаження)")
-        print("9. saved Notes(Зберігання)")
-        print("10. Exit")
+        print("sort = Sort Notes(Сортування)")
+        print("list = List Notes(Вивести список)")
+        print("search = Search Notes(Пошук)")
+        print("load = Load Notes(Завантаження)")
+        print("save = Save Notes(Зберігання)")
+        print("exit = Exit (do not forget to save first!)")
       
         user_input = get_command_from_user()
 
