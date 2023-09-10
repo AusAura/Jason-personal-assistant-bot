@@ -48,6 +48,32 @@ def command_phone_operations_check_decorator(func):
 
 # Classes
 class AddressBook(UserDict):
+    N_LIMIT = 2
+
+    def __init__(self):
+        super().__init__()
+        self.count = 0
+        self.call_List = list(self.data.keys())
+        with open('Untitled/file_address_book.json') as reader:
+            try:
+                file_data = json.load(reader)
+                for item in file_data:
+                    name = Name(item['name'])
+                    random_var = item['Phone number']
+                    row_email = Email(item['email'])
+                    row_address = Address(item['address'])
+                    record = Record(name,
+                                    random_var[0], row_email, row_address)
+                    iter = 1
+                    while iter < len(random_var):
+                        record.add_phone(
+                            random_var[iter])
+                        iter += 1
+                    record.set_birthday(item['Date of birth'])
+                    self.data[item['name']] = record
+            except json.decoder.JSONDecodeError:
+                file_data = []
+        # print(self.data)
 
     def add_record(self, record, *_):
         self.data.update({record.name.value: record})
@@ -56,6 +82,23 @@ class AddressBook(UserDict):
         if str(contact_name) in self.data:
             del self.data[str(contact_name)]
             return None
+
+    def close_record_data(self):
+        file_data = []
+        print(self.data)
+        for record in self.data.values():
+            write_dict = {}
+            write_dict["name"] = record.name.value
+            write_dict["Phone number"] = [str(ph) for ph in record.phones]
+            write_dict["Date of birth"] = record.birthday.value.strftime(
+                "%d %B %Y") if record.birthday else ''
+            write_dict["email"] = str(
+                record.email) if record.email else ''
+            write_dict["address"] = str(
+                record.address) if record.address else ''
+            file_data.append(write_dict)
+        with open('Untitled/file_address_book.json', 'w') as writer:
+            json.dump(file_data, writer, indent=4)
 
     def iterator(self, n):
         counter = 0
@@ -97,17 +140,19 @@ class Record:
 
         self.birthday = None
 
-    def __repr__(self) -> str:
-        return f'{self.phones}'
+    def __repr__(self):
+        return f"{self.name}; {self.phones}; {self.birthday if self.birthday else ''}; {self.email if self.email else ''}; {self.address if self.address else ''}"
 
     def add_phone(self, phone):
         new_phone = Phone('')
         new_phone.value = phone
-        if new_phone.value not in [ph.value for ph in self.phones]:
+        if new_phone.value not in [ph for ph in self.phones]:
             self.phones.append(new_phone)
-            print(f'{new_phone.value} record was successfully added for {self.name.value}')
+            print(
+                f'{new_phone} record was successfully added for {self.name.value}')
         else:
-            print(f'{new_phone.value} is already actually recorded in {self.name.value}')
+            print(
+                f'{new_phone} is already actually recorded in {self.name.value}')
 
     def edit_phone(self, old_phone):
 
@@ -146,7 +191,6 @@ class Record:
         self.birthday = Birthday('')
         self.birthday.value = date_val
         print(f'{self.birthday} BDay record was added for {self.name.value}!')
-
 
     def set_email(self, email_val):
         self.email.value = email_val
@@ -233,6 +277,7 @@ class Phone(Field):
         if 10 <= len(phone) <= 13:
             if phone.replace('+', ' ').isdigit():
                 return True
+            return False
         else:
             return False
 
@@ -251,7 +296,7 @@ class Phone(Field):
             print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
                   'formats: +380001112233 or 80001112233 or 0001112233')
             raise WrongArgumentFormat
-        
+
         return correct_phone_number
 
     @value.setter
@@ -280,8 +325,8 @@ class Email(Field):
     @staticmethod
     def valid_email(email: str):
         if re.match(
-                r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
-            r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
+            r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
+                r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
             return True
         return False
 
@@ -294,7 +339,7 @@ class Email(Field):
             print('The email address is not valid! Must contain min 2 characters before "@" and 2-3 symbols in TLD! '
                   'Example: aa@example.net or aa@example.com.ua')
             raise WrongArgumentFormat
-        
+
 
 class Address(Field):
 
@@ -303,11 +348,11 @@ class Address(Field):
 
     def __repr__(self):
         return f"{self.__value}"
-    
+
     @property
     def value(self):
         return self.__value
-    
+
     @value.setter
     def value(self, new_value):
         self.__value = new_value
@@ -370,7 +415,8 @@ def load():
                 if row_phones:
 
                     row_normalized_phones = row_phones.split(',')
-                    row_serialized_phones = [Phone(phone) for phone in row_normalized_phones]
+                    row_serialized_phones = [
+                        Phone(phone) for phone in row_normalized_phones]
 
                 else:
                     row_serialized_phones = ''
@@ -387,7 +433,6 @@ def load():
 
 def save(adr_book):
     data = []
-
 
     for record in adr_book.data.values():
         record_data = {
@@ -424,10 +469,10 @@ def add_record(adr_book, line_list):
     phone_number = Phone('')
     phone_number.value = line_list[2]
 
-    try: 
+    try:
         line_list[3]
     except IndexError:
-          email = Email('')
+        email = Email('')
     else:
         email = Email('')
         email.value = line_list[3]  # add Email from list
@@ -439,10 +484,11 @@ def add_record(adr_book, line_list):
     else:
         address = Address('')
         address.value = line_list[4]
-   
+
     record = Record(name, phone_number, email, address)
     adr_book.add_record(record)
-    print(f'Added record for {name.value} with {phone_number.value}, email \'{email.value}\', and address \'{address.value}\' my lord.')
+    print(
+        f'Added record for {name.value} with {phone_number.value}, email \'{email.value}\', and address \'{address.value}\' my lord.')
 
 
 @command_phone_operations_check_decorator
@@ -556,10 +602,12 @@ def find(adr_book, line_list):
 
 
 def finish_session(adr_book, *_) -> None:
-    if save(adr_book) == None:
-        print('Good bye!')
-        global IS_FINISHED
-        IS_FINISHED = True
+  
+    adr_book.close_record_data()
+    print('Good bye!')
+    global IS_FINISHED
+    IS_FINISHED = True
+
 
 
 def hello(*_) -> None:
@@ -585,7 +633,15 @@ def show_all_items(adr_book, *_) -> None:
 
         print(f'Phones for {record}:')
         for id, phone in enumerate(adr_book.data[record].phones, 1):
-            print(f'{id}) - {phone.value}')
+            print(f'{id}) - {phone}')
+
+        # if bool(adr_book.data[record].phones) == False:
+        #     print(f'Your list for {record} is empty!')
+        #     continue
+
+        # print(f'Phones for {record}:')
+        # for id, phone in enumerate(adr_book.data[record].phones, 1):
+        #     print(f'{id}) - {phone.value}')
 
 
 @command_phone_operations_check_decorator
@@ -610,12 +666,13 @@ def show_bday_in_days(adr_book, line_list, *_) -> None:
     is_empty = True
 
     print(f'You wanted to see Bdays in {days_timeframe} days! Here we go: ')
-    
+
     for record in adr_book.data.values():
 
         record_timedelta = timedelta(days=record.birthday._days_to_birthday())
 
         if record_timedelta <= datetime_timedelta:
+          
             print('=' * 10)
             print(f'{record.name} will have a BDay in {record_timedelta.days}! ({record.birthday})')
             print(f'His data: phones - {record.phones}, email - {record.email}, address - {record.address}')
@@ -649,6 +706,7 @@ def show_some_items(adr_book, *_):
         else:
             print('I do not understand the command!')
 
+
 @command_phone_operations_check_decorator
 def set_email(adr_book, line_list, *_):
 
@@ -659,11 +717,12 @@ def set_email(adr_book, line_list, *_):
     except KeyError:
         print(f'Cannot find name {record_name} in the list!')
         return
-    
+
     email_val = input('Please set the email like "myemail@google.com": ')
 
     if email_val:
         adr_book.data[record_name].set_email(email_val)
+
 
 @command_phone_operations_check_decorator
 def set_birthday(adr_book, line_list, *_):
@@ -678,9 +737,10 @@ def set_birthday(adr_book, line_list, *_):
     date_val = input('Please set the birthday date like "10 January 2020": ')
     adr_book.data[record_name].set_birthday(date_val)
 
+
 @command_phone_operations_check_decorator
 def set_address(adr_book, line_list, *_):
-    
+
     record_name = line_list[1]
 
     try:
@@ -692,6 +752,7 @@ def set_address(adr_book, line_list, *_):
     adr_book.data[record_name].address = address_val
     print(f'Address {address_val} was set successfully for {record_name}!')
 
+
 @command_phone_operations_check_decorator
 def show_email(adr_book, line_list, *_):
     record_name = line_list[1]
@@ -701,10 +762,12 @@ def show_email(adr_book, line_list, *_):
     else:
         print('It is EMPTY!')
 
+
 @command_phone_operations_check_decorator
 def show_birthday(adr_book, line_list, *_):
     record_name = line_list[1]
     adr_book.data[record_name]._days_to_birthday()
+
 
 @command_phone_operations_check_decorator
 def show_address(adr_book, line_list, *_):

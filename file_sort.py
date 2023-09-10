@@ -80,6 +80,7 @@ def main():
 
         for folder in parser.FOLDERS[::-1]:
             handle_folder(folder)
+        print('The folder has been succesfully sorted')
 
 
 if __name__ == "__main__":
