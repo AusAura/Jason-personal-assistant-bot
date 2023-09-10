@@ -3,52 +3,50 @@ from datetime import datetime, timedelta
 import json
 import re
 
+# constant to return to main.py
+IS_FINISHED = False
 
 class TerribleException(Exception):
     pass
 
-
 class ExcessiveArguments(Exception):
     pass
-
 
 class WrongArgumentFormat(Exception):
     pass
 
-
+# Decorator that catches most of the exceptions
 def command_phone_operations_check_decorator(func):
     def inner(*args, **kwargs) -> None:
 
         try:
             func(*args, **kwargs)
 
-        except TypeError as error:
-            print('Argument type is not acceptable!', error)
+        except TypeError:
+            print('Argument type is not acceptable!')
             return
-        except ValueError as error:
-            print(
-                f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
+        except ValueError:
+            print(f'Too many arguments for {func.__name__}! Probably you are using too many spaces.')
             return
-        except IndexError as error:
-            print(f'Not enough arguments for {func.__name__}!', error)
+        except IndexError:
+            print(f'Not enough arguments for {func.__name__}!')
             return
-        except TerribleException as error:
+        except TerribleException:
             print('''Something REALLY unknown had happened during your command reading! Please stay  
-            calm and run out of the room!''', error)
+            calm and run out of the room!''')
             return
-        except KeyError as error:
-            print('Such command (or object) does not exist!', error)
+        except KeyError:
+            print('Such command does not exist!')
             return
-        except ExcessiveArguments as error:
-            print(
-                f'Too many arguments for {func.__name__}! Probably you are using too many spaces.', error)
+        except ExcessiveArguments:
+            print(f'Too many arguments for {func.__name__}! Probably you are using too many spaces.')
             return
         except WrongArgumentFormat:
             return
 
     return inner
 
-
+# Classes
 class AddressBook(UserDict):
 
     def add_record(self, record, *_):
@@ -315,6 +313,7 @@ class Address(Field):
         self.__value = new_value
 
 
+# Deconstructor that allows using commands with any number or keywords and with any number or passed parameters
 def deconstruct_command(input_line: str) -> list:
     line_list = input_line.split(' ')
 
@@ -351,6 +350,7 @@ def deconstruct_command(input_line: str) -> list:
     return new_line_list
 
 
+# load/save
 def load():
     adr_book = AddressBook()
 
@@ -408,6 +408,7 @@ def save(adr_book):
         print('Data could not be saved. Check the path to the file.')
 
 
+# Universal command performer/handler
 @command_phone_operations_check_decorator
 def perform_command(command: str, adr_book, *args, **kwargs) -> None:
     command_list[command](adr_book, *args, **kwargs)
@@ -513,7 +514,8 @@ def delete_record(adr_book, line_list):
 
 def close_without_saving(*_):
     print('Will NOT save! BB!')
-    exit()
+    global IS_FINISHED
+    IS_FINISHED = True
 
 
 @command_phone_operations_check_decorator
@@ -529,14 +531,24 @@ def find(adr_book, line_list):
 
         if record.name.value.find(str_to_find) != -1:
             is_empty = False
-            print(record.name, record, record.birthday.value)
+            print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            continue
+
+        elif record.email.value.find(str_to_find) != -1:
+            is_empty = False
+            print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            continue
+
+        elif record.address.find(str_to_find) != -1:
+            is_empty = False
+            print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         for phone in record.phones:
 
             if phone.value.find(str_to_find) != -1:
                 is_empty = False
-                print(record.name, record, record.birthday.value)
+                print(f'Name: {record.name} | Phones: {record} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
                 break
 
     if is_empty:
@@ -546,7 +558,8 @@ def find(adr_book, line_list):
 def finish_session(adr_book, *_) -> None:
     if save(adr_book) == None:
         print('Good bye!')
-        exit()
+        global IS_FINISHED
+        IS_FINISHED = True
 
 
 def hello(*_) -> None:
@@ -554,7 +567,9 @@ def hello(*_) -> None:
 
 
 def help(*_):
-    print(command_list.keys())
+    print(f'Available commands:')
+    for command, description in command_description.items():
+        print(f'{command} - {description}')
 
 
 @command_phone_operations_check_decorator
@@ -574,10 +589,23 @@ def show_all_items(adr_book, *_) -> None:
 
 
 @command_phone_operations_check_decorator
-def show_bday_in_days(adr_book, *_) -> None:
+def show_bday_in_days(adr_book, line_list, *_) -> None:
 
-    days_timeframe = input('In how many days you want to see BDays of your victims? ')
-    print('*' * 10)
+    days_timeframe = line_list[1]
+
+    try:
+        days_timeframe = int(days_timeframe)
+    except ValueError:
+        print('Timeframe should be a number!')
+        raise WrongArgumentFormat
+    except TypeError:
+        print('Timeframe should be a number!')
+        raise WrongArgumentFormat
+
+    if days_timeframe < 0:
+        print('Timeframe could not be a negative number!')
+        raise WrongArgumentFormat
+
     datetime_timedelta = timedelta(days=int(days_timeframe))
     is_empty = True
 
@@ -590,7 +618,7 @@ def show_bday_in_days(adr_book, *_) -> None:
         if record_timedelta <= datetime_timedelta:
             print('=' * 10)
             print(f'{record.name} will have a BDay in {record_timedelta.days}! ({record.birthday})')
-            print(f'His data: {record.phones}, {record.email}')
+            print(f'His data: phones - {record.phones}, email - {record.email}, address - {record.address}')
 
             is_empty = False
 
@@ -690,6 +718,7 @@ def show_address(adr_book, line_list, *_):
         print(f"No address is set for {record_name}")
 
 
+# command vocab for curry
 command_list = {'not save': close_without_saving,
                 'good bye': finish_session,
                 'close': finish_session,
@@ -712,11 +741,37 @@ command_list = {'not save': close_without_saving,
                 'bday in': show_bday_in_days}
 
 
+# command vocab with descriptions
+command_description = {'not save': 'Close adress book without saving',
+                'good bye': 'Save changes and close address book',
+                'close': 'Save changes and close address book',
+                'hello': 'Hear some greeting from me',
+                'add': 'Add a new record',
+                'add phone': 'Add new phone to the existing record',
+                'edit phone': 'Edit a phone of the existing record',
+                'show all': 'Show all the records',
+                'show some': 'Show some number of the records at a time',
+                'delete phone': 'Delete the phone of the existing record',
+                'delete contact': 'Delete record completely',
+                'set bday': 'Set a BDay for the existing record',
+                'set email': 'Set an email for the existing record',
+                'set address': 'Set an adress for the existing record',
+                'show bday': 'Show a BDay for the existing record',
+                'show email': 'Show an email for the existing record',
+                'show address': 'Show an address for the existing record',
+                'find': 'Find record that contains ...',
+                'help': 'Show full list of available commands',
+                'bday in': 'Show records that have BDay in set timeframe of days'}
+
+
 # main
 def main():
 
-    # adr_book = load()
-    adr_book = ab
+    adr_book = load()
+    # adr_book = ab
+    print('*' * 10)
+    hello()
+    print('*' * 10)
     help()
 
     while True:
@@ -729,7 +784,11 @@ def main():
 
         perform_command(current_command, adr_book, line_list)
 
+        if IS_FINISHED:
+            break
 
+
+# Execute
 if __name__ == '__main__':
     name = Name('Bill')
     phone = Phone('1234567890')
