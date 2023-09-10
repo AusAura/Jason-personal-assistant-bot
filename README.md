@@ -12,7 +12,7 @@
 №2) add <_name> <_phone_number> <_email> <_adress>
 Дозволяє додавати новий запис до адресної книги.
 
-<_name> = str, 1 слово, 1 слово
+<_name> = str, 1 слово
 <_phone_number> = Must contain 10-13 symbols and must match the one of the current '
 'formats: +380001112233 or 80001112233 or 0001112233
 <_email> = Must contain min 2 characters before "@" and 2-3 symbols in TLD! '
@@ -31,7 +31,7 @@
 №3) add phone <_name> <_phone_number>
 Дозволяє додавати новий телефон до створеного запису.
 
-<_name> = str, 1 слово, 1 слово
+<_name> = str, 1 слово
 <_phone_number> = Must contain 10-13 symbols and must match the one of the current '
 'formats: +380001112233 or 80001112233 or 0001112233 
 
@@ -47,7 +47,7 @@
 №4) edit phone <_name> <_phone_number>
 Дозволяє редагувати телефон у створеному записі.
 
-<_name> = str, 1 слово, 1 слово
+<_name> = str, 1 слово
 <_phone_number> = Must contain 10-13 symbols and must match the one of the current '
 'formats: +380001112233 or 80001112233 or 0001112233 
 
@@ -92,7 +92,7 @@
 №7) delete phone <_name> <_phone_number>
 Видаляє вказаний телефон із створеного запису.
 
-<_name> = str, 1 слово, 1 слово
+<_name> = str, 1 слово
 <_phone_number> = Must contain 10-13 symbols and must match the one of the current '
 'formats: +380001112233 or 80001112233 or 0001112233
 
