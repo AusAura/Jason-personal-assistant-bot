@@ -35,8 +35,8 @@ class Notebook:
 
     def add_note(self, note):
 
-            if any(len(tag) > 10 for tag in note.tags):
-                raise InvalidFormatError("Invalid format. Tags <= 20")
+            if any(len(tag) > 15 for tag in note.tags):
+                raise InvalidFormatError("Invalid format. Tags <= 15")
         
             # Перевірка на однакові назви
             title = note.title.casefold()
@@ -239,12 +239,12 @@ def main():
                 print("No notes found.")
 
                 
-        elif user_input.casefold() == "load":
+        elif user_input.casefold() == "reset":
             # new_filename = input("Enter the filename for loading notes (e.g., notes.json): ")
             new_filename = 'notes.json'
             notebook = Notebook(new_filename)
             notebook.load_notes()
-            print("Notes loaded from the file.")
+            print("Notes loaded from the file as it was before the start.")
 
         elif user_input.casefold() == "save":
             notebook.save_notes()
@@ -252,8 +252,8 @@ def main():
 
         elif user_input.casefold() == "exit":
 
-            # notebook.save_notes()
-            # print("Notes saved to the file.")
+            notebook.save_notes()
+            print("Notes saved to the file.")
             print("Bye...")
             break
             
