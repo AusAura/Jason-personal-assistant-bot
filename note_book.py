@@ -159,20 +159,19 @@ def main():
         if user_input.casefold() == "add":
             # Додати нотатку.
             title = input("Enter Title: ")
-            try:
               
-                if len(title) < 5:
-                    raise InvalidFormatError("Invalid format. Title length should be >= 5.")
-                content = input("Enter content: ")
+            if len(title) < 5:
+                raise InvalidFormatError("Invalid format. Title length should be >= 5.")
+            content = input("Enter content: ")
                 
-                if len(content) < 20:
-                    raise InvalidFormatError("Invalid format. Content length should be >= 20.")
+            if len(content) < 20:
+                raise InvalidFormatError("Invalid format. Content length should be >= 20.")
 
-                tags = input("Enter Tags (comma-separated or space-separated): ")
-                tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
-                note = Note(title, content, tags)
-                notebook.add_note(note)
-                        
+            tags = input("Enter Tags (comma-separated or space-separated): ")
+            tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
+            note = Note(title, content, tags)
+            notebook.add_note(note)
+                       
         elif user_input.casefold() == "edit":
           
             # Редагувати нотатку.
@@ -261,8 +260,6 @@ def main():
         else:
             print('I do not understand the command!')
 
-        else:
-            print('I do not understand the command!')
 
             
 if __name__ == "__main__":
