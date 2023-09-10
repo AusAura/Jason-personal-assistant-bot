@@ -51,7 +51,7 @@ class Notebook:
 
     def search_notes(self, keyword):
         """Пошук нотаток за ключовим словом."""
-        keyword = keyword.lower()  # Перетворити ключове слово до нижнього регістру для нечутливого до регістру пошуку.
+        keyword = keyword.lower()
         matching_notes = []
         for note in self.notes:
             if keyword in note.title.lower() or keyword in note.content.lower() or keyword in note.tags:
@@ -74,10 +74,15 @@ class Notebook:
         print(f"Editing note: {note.title}")
         print(f"Current content: {note.content}")
 
-        new_content = input("Enter the new content: ")
-        note.content = new_content
-        print("Note edited!")
-        return True
+        try:
+            new_content = input("Enter the new content: ")
+            if len(new_content) < 10:
+                raise InvalidFormatError("Invalid format. Content length should be >= 10.")
+        except InvalidFormatError as error:
+            print(error)
+        else:
+            note.content = new_content
+            return True
     
     def delete_note(self, title):
         title = title.casefold()
@@ -89,13 +94,8 @@ class Notebook:
     
     def sort_notes_by_tags(self, tag):
         tag = tag.casefold()
-        sorted_notes = []
-
-        for note in self.notes:
-            if tag in [t.casefold() for t in note.tags]:
-                sorted_notes.append(note)
-
-        sorted_notes.sort(key=lambda x: x.title.casefold())
+        filtered_notes = [note for note in self.notes if tag in [t.casefold() for t in note.tags]]
+        sorted_notes = sorted(filtered_notes, key=lambda x: x.title.lower())
         return sorted_notes
 
 
@@ -153,19 +153,25 @@ def main():
 
         if user_input.casefold() == "add":
             # Додати нотатку.
-            title = input("Enter Title: ")
-              
-            if len(title) < 5:
-                raise InvalidFormatError("Invalid format. Title length should be >= 5.")
-            content = input("Enter content: ")
-                
-            if len(content) < 10:
-                raise InvalidFormatError("Invalid format. Content length should be >= 10.")
-
-            tags = input("Enter Tags (comma-separated or space-separated): ")
-            tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
-            note = Note(title, content, tags)
-            notebook.add_note(note)
+            try:
+                title = input("Enter Title: ")
+                if len(title) < 5:
+                    raise InvalidFormatError("Invalid format. Title length should be >= 5.")
+            except InvalidFormatError as error:
+                print(error)
+            else:
+                try:
+                    content = input("Enter content: ")
+                    if len(content) < 10:
+                        raise InvalidFormatError("Invalid format. Content length should be >= 10.")
+                except InvalidFormatError as error:
+                    print(error)
+                else:
+                    tags = input("Enter Tags (comma-separated or space-separated): ")
+                    tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
+                    note = Note(title, content, tags)
+                    notebook.add_note(note)
+                       
                        
         elif user_input.casefold() == "edit":
           
@@ -210,15 +216,29 @@ def main():
                     print("Invalid format. Tags <= 20.")
                     
         elif user_input.casefold() == "sort":
-
-            # Сортування нотаток за ключовим словом.
+            # Cортування нотаток.
             keyword = input("Enter a keyword to sort notes by: ")
-            notes_with_keyword = [
-                (note, keyword in note.title or keyword in note.content) for note in notebook.notes]
-            sorted_notes = sorted(notes_with_keyword,
-                                  key=lambda x: x[1], reverse=True)
+            
+            notes_with_priority = []
+            
+            for note in notebook.notes:
+                priority = 0
+                
+                if any(keyword in tag.lower() for tag in note.tags):
+                    priority += 3
+                    
+                if keyword in note.title.lower():
+                    priority += 2
+                    
+                if keyword in note.content.lower():
+                    priority += 1
+                    
+                notes_with_priority.append((note, priority))
+            sorted_notes = sorted(notes_with_priority, key=lambda x: x[1], reverse=True)
+            
             for note, _ in sorted_notes:
                 print(note)
+
 
                 
         elif user_input.casefold() == "list":
