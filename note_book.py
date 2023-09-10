@@ -1,6 +1,3 @@
-# """зберігати нотатки з текстовою інформацією
-# проводити пошук за нотатками"""
-
 import json
 import os
 
@@ -37,8 +34,8 @@ class Notebook:
                 raise InvalidFormatError("Invalid format. Title >= 5.")
             if len(note.content) < 20:
                 raise InvalidFormatError("Invalid format. Content >= 20.")"""
-            if any(1 <= len(tag) <= 5 for tag in note.tags):
-                raise InvalidFormatError("Invalid format. Tags <= 5")
+            if any(len(tag) > 20 for tag in note.tags):
+                raise InvalidFormatError("Invalid format. Tags <= 20")
         
             # Перевірка на однакові назви
             title = note.title.casefold()
@@ -146,11 +143,11 @@ def main():
 
         
         if choice == '1':       
-                
+            # Додати нотатку.    
             title = input("Enter Title: ")
             try:
                 if len(title) < 5:
-                    raise InvalidFormatError("Invalid format. Tags <= 5.")
+                    raise InvalidFormatError("Invalid format. Title >= 5.")
                 content = input("Enter content: ")
                 if len(content) < 20:
                     raise InvalidFormatError("Invalid format. Content >= 20.")
@@ -189,15 +186,19 @@ def main():
             if note is None:
                 print("Note not found!")
             else:
-                new_tags = input("Enter the new tags: ").split()
-                if all(1 <= len(tag) <= 5 for tag in new_tags):
+                new_tags_input = input("Enter the new tags (comma-separated or space-separated): ")
+                new_tags = [tag.strip() for tag in new_tags_input.replace(',', ' ').split()]
+                if not new_tags:
+                    print("Invalid format. Tags can't be empty.")
+                elif all(len(tag) < 20 for tag in new_tags):
                     if any(tag.casefold() in note.tags for tag in new_tags):
                         print("Some tags already exist for this note.")
                     else:
                         note.tags.extend(new_tags)
                         print("Tags added!")
                 else:
-                    print("Invalid format. Tags <= 5.")
+                    print("Invalid format. Tags <= 20.")
+                
                     
         elif choice == '5':
           
