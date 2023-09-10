@@ -34,10 +34,7 @@ class Notebook:
 
 
     def add_note(self, note):
-            """if len(note.title) < 5:
-                raise InvalidFormatError("Invalid format. Title >= 5.")
-            if len(note.content) < 20:
-                raise InvalidFormatError("Invalid format. Content >= 10.")"""
+
             if any(len(tag) > 10 for tag in note.tags):
                 raise InvalidFormatError("Invalid format. Tags <= 20")
         
@@ -162,8 +159,8 @@ def main():
                 raise InvalidFormatError("Invalid format. Title length should be >= 5.")
             content = input("Enter content: ")
                 
-            if len(content) < 20:
-                raise InvalidFormatError("Invalid format. Content length should be >= 20.")
+            if len(content) < 10:
+                raise InvalidFormatError("Invalid format. Content length should be >= 10.")
 
             tags = input("Enter Tags (comma-separated or space-separated): ")
             tags = [tag.strip() for tag in tags.replace(',', ' ').split()]
