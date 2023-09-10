@@ -37,8 +37,8 @@ class Notebook:
             """if len(note.title) < 5:
                 raise InvalidFormatError("Invalid format. Title >= 5.")
             if len(note.content) < 20:
-                raise InvalidFormatError("Invalid format. Content >= 20.")"""
-            if any(len(tag) > 20 for tag in note.tags):
+                raise InvalidFormatError("Invalid format. Content >= 10.")"""
+            if any(len(tag) > 10 for tag in note.tags):
                 raise InvalidFormatError("Invalid format. Tags <= 20")
         
             # Перевірка на однакові назви
