@@ -275,7 +275,7 @@ class Phone(Field):
     @staticmethod
     def valid_phone(phone: str):
         if 10 <= len(phone) <= 13:
-            if phone.replace('+', ' ').isdigit():
+            if phone.removeprefix('+').isdigit():
                 return True
             return False
         else:
