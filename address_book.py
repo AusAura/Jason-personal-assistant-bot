@@ -3,9 +3,7 @@ from datetime import datetime, timedelta
 import json
 import re
 
-# constant to return to main.py
-IS_FINISHED = False
-
+is_finished = False
 
 class TerribleException(Exception):
     pass
@@ -107,8 +105,9 @@ class AddressBook(UserDict):
             return None
 
     def close_record_data(self):
+
         file_data = []
-        # print(self.data)
+        
         for record in self.data.values():
             write_dict = {}
             write_dict["name"] = record.name.value
@@ -120,6 +119,7 @@ class AddressBook(UserDict):
             write_dict["address"] = str(
                 record.address) if record.address else ''
             file_data.append(write_dict)
+
         with open('save.json', 'w') as writer:
             json.dump(file_data, writer, indent=4)
 
@@ -552,8 +552,8 @@ def delete_record(adr_book, line_list):
 
 def close_without_saving(*_):
     print('Will NOT save! BB!')
-    global IS_FINISHED
-    IS_FINISHED = True
+    global is_finished
+    is_finished = True
 
 
 @command_phone_operations_check_decorator
@@ -598,10 +598,11 @@ def find(adr_book, line_list):
 
 
 def finish_session(adr_book, *_) -> None:
+
     adr_book.close_record_data()
     print('Good bye!')
-    global IS_FINISHED
-    IS_FINISHED = True
+    global is_finished
+    is_finished = True
 
 
 def hello(*_) -> None:
@@ -810,6 +811,7 @@ command_description = {'not save': 'Close adress book without saving',
 # main
 def main():
 
+    global is_finished
     adr_book = AddressBook()
 
     print('*' * 10)
@@ -827,10 +829,13 @@ def main():
 
         perform_command(current_command, adr_book, line_list)
 
-        if IS_FINISHED:
+        if is_finished:
+            is_finished = False
             break
 
 
 # Execute
 if __name__ == '__main__':
+
+    # checker to return to jason.py
     main()
