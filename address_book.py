@@ -87,10 +87,11 @@ class AddressBook(UserDict):
                         record.set_birthday(item['Date of birth'])
 
                     self.data[item['name']] = record
+                    
             except json.decoder.JSONDecodeError:
                 file_data = []
-        # print(self.data)
 
+                
     def add_record(self, record, *_):
         self.data.update({record.name.value: record})
 
@@ -294,10 +295,14 @@ class Phone(Field):
 
     @staticmethod
     def valid_phone(phone: str):
+      
         if 10 <= len(phone) <= 13:
+          
             if phone.replace('+', '').isdigit():
                 return True
+              
             return False
+          
         else:
             return False
 
@@ -471,42 +476,37 @@ def save(adr_book):
         print('Data could not be saved. Check the path to the file.')
 
 
-# Universal command performer/handler
+#Universal command performer/handler
 @command_phone_operations_check_decorator
 def perform_command(command: str, adr_book, *args, **kwargs) -> None:
     command_list[command](adr_book, *args, **kwargs)
 
 
-# curry functions
+#curry functions
 @command_phone_operations_check_decorator
 def add_record(adr_book, line_list):
-    if len(line_list) > 5:
-        raise ExcessiveArguments
+    if len(line_list) < 4:
+        print('Not enough arguments for add_record!')
+        return
 
     name = Name(line_list[1])
     phone_number = Phone('')
     phone_number.value = line_list[2]
 
-    try:
-        line_list[3]
-    except IndexError:
-        email = Email('')
-    else:
-        email = Email('')
-        email.value = line_list[3]  # add Email from list
+    email = Email('')  
+    address = Address('')
 
-    try:
-        line_list[4]
-    except IndexError:
-        address = Address('')
-    else:
-        address = Address('')
-        address.value = line_list[4]
+    for item in line_list[3:]:
+        if '@' in item:  
+            email.value = item
+        else:  
+            address.value += ' ' + item  
 
     record = Record(name, phone_number, email, address)
     adr_book.add_record(record)
     print(
         f'Added record for {name.value} with {phone_number.value}, email \'{email.value}\', and address \'{address.value}\' my lord.')
+
 
 
 @command_phone_operations_check_decorator
@@ -844,8 +844,6 @@ command_description = {'not save': 'Close adress book without saving',
 # main
 def main():
     adr_book = AddressBook()
-    # adr_book = load()
-    # adr_book = ab
     print('*' * 10)
     hello()
     print('*' * 10)
