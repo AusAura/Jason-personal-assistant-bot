@@ -203,7 +203,7 @@ class Record:
 
 
 """Class Field виступає головним класом від якого наслідуються інші класи, такі як: Birthday, Name, Phone, Email, 
-Address. Використовується для приведення типів данних"""
+Address. Використовується для приведення типів данних."""
 class Field:
 
     def __init__(self, value):
@@ -220,7 +220,7 @@ class Field:
     def value(self, new_value):
         self._value = new_value
 
-"""Class Birthdaay наслідується від Field, приймає """
+"""Class Birthdaay наслідується від Field, приймає день народження формату str і повертає у вигляді date."""
 
 class Birthday(Field):
 
@@ -258,7 +258,7 @@ class Birthday(Field):
     def __repr__(self) -> str:
         return f'{self.value.strftime("%d %B %Y")}'
 
-
+"""Class Name наслідується від Field, приймає ім'я формату str і повертає його."""
 class Name(Field):
 
     def __init__(self, value):
@@ -267,7 +267,8 @@ class Name(Field):
     def __repr__(self) -> str:
         return f'{self._value}'
 
-
+"""Class Phone наслідується від Field, приймає номер телефону формату str, проводить його валідацію на коректність 
+введення, конвертує його до формату +380999999999 та повертає у новому вигляді."""
 class Phone(Field):
 
     def __init__(self, value):
@@ -283,7 +284,7 @@ class Phone(Field):
     @staticmethod
     def valid_phone(phone: str):
         if 10 <= len(phone) <= 13:
-            if phone.replace('+', ' ').isdigit():
+            if phone.replace('+', '').isdigit():
                 return True
             return False
         else:
@@ -302,7 +303,7 @@ class Phone(Field):
             correct_phone_number = '+38' + phone
         else:
             print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
-                  'formats: +380001112233 or 80001112233 or 0001112233')
+                  'formats: +380001112233 or 80001112233 or 0001112233!')
             raise WrongArgumentFormat
 
         return correct_phone_number
@@ -314,10 +315,11 @@ class Phone(Field):
             self.__value = self.convert_phone_number(new_value)
         else:
             print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
-                  'formats: +380001112233 or 80001112233 or 0001112233')
+                  'formats: +380001112233 or 80001112233 or 0001112233!')
             raise WrongArgumentFormat
 
-
+"""Class Email наслідується від Field, приймає емейл формату str, проводить його валідацію на коректність 
+введення та повертає."""
 class Email(Field):
 
     def __init__(self, value):
@@ -348,7 +350,7 @@ class Email(Field):
                   'Example: aa@example.net or aa@example.com.ua')
             raise WrongArgumentFormat
 
-
+"""Class Address наслідується від Field, приймає адресу формату str та повертає."""
 class Address(Field):
 
     def __init__(self, value):
