@@ -2,7 +2,7 @@ from . import address_book, note_book, file_sort
 
 while True:
     
-    choice = input('1) Address book of your victims; 2) Notebook for special murders; 3) Sort files in the current folder; 4) Exit. \nChoose program: ')
+    choice = input('1) Address book of your victims; 2) Notebook for special murders; 3) Sort files in some folder; 4) Exit. \nChoose program: ')
     
     try:
         choice = int(choice)
