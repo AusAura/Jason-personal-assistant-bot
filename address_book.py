@@ -51,12 +51,16 @@ class AddressBook(UserDict):
     N_LIMIT = 2
 
     def __init__(self):
+
         super().__init__()
         self.count = 0
         self.call_List = list(self.data.keys())
+
         with open('save.json') as reader:
+
             try:
                 file_data = json.load(reader)
+
                 for item in file_data:
                     name = Name(item['name'])
                     random_var = item['Phone number']
@@ -65,15 +69,22 @@ class AddressBook(UserDict):
                     record = Record(name,
                                     random_var[0], row_email, row_address)
                     iter = 1
+
                     while iter < len(random_var):
                         record.add_phone(
                             random_var[iter])
                         iter += 1
-                    record.set_birthday(item['Date of birth'])
+
+                    if item['Date of birth'] == '':
+                        record.birthday = None
+
+                    else:
+                        record.set_birthday(item['Date of birth'])
+
                     self.data[item['name']] = record
             except json.decoder.JSONDecodeError:
                 file_data = []
-        print(self.data)
+        # print(self.data)
 
     def add_record(self, record, *_):
         self.data.update({record.name.value: record})
@@ -275,7 +286,7 @@ class Phone(Field):
     @staticmethod
     def valid_phone(phone: str):
         if 10 <= len(phone) <= 13:
-            if phone.removeprefix('+').isdigit():
+            if phone.replace('+', '').isdigit():
                 return True
             return False
         else:

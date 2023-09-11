@@ -34,5 +34,14 @@
         "Date of birth": "30 July 2020",
         "email": "Donny@Donny.com",
         "address": "Nezalozhnosti, 110"
+    },
+    {
+        "name": "Vix",
+        "Phone number": [
+            "+380995553344"
+        ],
+        "Date of birth": "",
+        "email": "",
+        "address": ""
     }
 ]
