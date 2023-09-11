@@ -4,7 +4,10 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 
 
-class Note:
+class Note: #Клас Note представляє окрему нотатку з такими атрибутами:
+            #title: Рядок, що представляє заголовок нотатки.
+            #content: Рядок, що містить вміст нотатки.
+            #tags: Список рядків, які представляють теги, пов'язані з нотаткою.
   
     def __init__(self, title, content, tags=[]):
 
@@ -15,11 +18,13 @@ class Note:
     def __str__(self):
         return f"Title: {self.title}\nContent: {self.content}\nTags: {', '.join(self.tags)}"
 
-class InvalidFormatError(Exception):
+class InvalidFormatError(Exception): # Клас InvalidFormatError є власним виключенням, яке використовується для обробки помилок невірного формату введення.
     pass
 
 
-class Notebook:
+class Notebook: # Клас Notebook представляє собою колекцію нотаток і надає методи для їх управління. Він має наступні атрибути:
+                # notes: Список об'єктів Note.
+                # filename: Назва файлу, який використовується для зберігання нотаток у форматі JSON.
 
     def __init__(self, filename="notes.json"):
         self.notes = []
@@ -33,7 +38,7 @@ class Notebook:
             self.load_notes()
 
 
-    def add_note(self, note):
+    def add_note(self, note): # Додає нову нотатку до блокнота. Перевіряє наявність нотаток з однаковими заголовками і валідує довжину тегів.
 
             if any(len(tag) > 15 for tag in note.tags):
                 raise InvalidFormatError("Invalid format. Tags <= 15")
@@ -49,7 +54,7 @@ class Notebook:
             print("Note added!")
 
 
-    def search_notes(self, keyword):
+    def search_notes(self, keyword): # Шукає нотатки, які містять вказане ключове слово в їхніх заголовках, вмісті або тегах.
         """Пошук нотаток за ключовим словом."""
         keyword = keyword.lower()
         matching_notes = []
@@ -58,14 +63,14 @@ class Notebook:
                 matching_notes.append(note)
         return matching_notes
 
-    def find_note(self, title):
+    def find_note(self, title): # Знаходить нотатку за її заголовком.
         title = title.casefold()
         for note in self.notes:
             if note.title.casefold() == title:
                 return note
         return None
 
-    def edit_note(self, title):
+    def edit_note(self, title): # Редагує вміст існуючої нотатки.
         note = self.find_note(title)
         if note is None:
             print("Note not found!")
@@ -84,7 +89,7 @@ class Notebook:
             note.content = new_content
             return True
     
-    def delete_note(self, title):
+    def delete_note(self, title): #  Видаляє нотатку за заголовком.
         title = title.casefold()
         for note in self.notes.copy():
             if note.title.casefold() == title.casefold():
@@ -92,14 +97,14 @@ class Notebook:
                 return True
         return False
     
-    def sort_notes_by_tags(self, tag):
+    def sort_notes_by_tags(self, tag): # Сортує нотатки за тегами,розміщуючи нотатки з вказаними тегами спереду.
         tag = tag.casefold()
         filtered_notes = [note for note in self.notes if tag in [t.casefold() for t in note.tags]]
         sorted_notes = sorted(filtered_notes, key=lambda x: x.title.lower())
         return sorted_notes
 
 
-    def list_notes(self):
+    def list_notes(self): # Перелічує всі нотатки у блокноті.
         if not self.notes:
             print("No notes available.")
         else:
@@ -108,12 +113,12 @@ class Notebook:
                 print(f"   Content: {note.content}")
                 print(f"   Tags: {', '.join(note.tags)}")
 
-    def save_notes(self):
+    def save_notes(self): # Зберігає нотатки у JSON-файлі.
         data = [{'title': note.title, 'content': note.content, 'tags': note.tags} for note in self.notes]
         with open(self.filename, 'w') as file:
             json.dump(data, file)
 
-    def load_notes(self):
+    def load_notes(self): # Завантажує нотатки з JSON-файлу.
         with open(self.filename, 'r') as file:
             data = json.load(file)
             self.notes = [Note(note['title'], note['content'], note['tags']) for note in data]
@@ -136,7 +141,7 @@ def main():
 
     while True:
            
-        print("\nNotebook Menu:")
+        print("\nNotebook Menu:") # Підтримувані команди.
         print("add = Add Note(Додати нот)")
         print("edit = Edit Note(Редагувати вміст)")
         print("delete = Delete Note(Видалити)")
@@ -174,7 +179,6 @@ def main():
                        
                        
         elif user_input.casefold() == "edit":
-          
             # Редагувати нотатку.
             title = input("Enter the title of the note to edit: ")
 
@@ -240,14 +244,11 @@ def main():
                 print(note)
 
 
-                
         elif user_input.casefold() == "list":
-    
             # Вивести список нотаток.
             notebook.list_notes()
 
         elif user_input.casefold() == "search":
-
             # Пошук нотаток за ключовим словом.
             keyword = input("Enter the keyword to search notes by: ")
             matching_notes = notebook.search_notes(keyword)
@@ -260,6 +261,7 @@ def main():
 
                 
         elif user_input.casefold() == "reset":
+            # Завантажити нотатки з файлу
             # new_filename = input("Enter the filename for loading notes (e.g., notes.json): ")
             new_filename = 'notes.json'
             notebook = Notebook(new_filename)
@@ -267,10 +269,12 @@ def main():
             print("Notes loaded from the file as it was before the start.")
 
         elif user_input.casefold() == "save":
+            # Зберегти нотатки у файл.
             notebook.save_notes()
             print("Notes saved to the file.")
 
         elif user_input.casefold() == "exit":
+            #Вийти з програми.
 
             notebook.save_notes()
             print("Notes saved to the file.")
