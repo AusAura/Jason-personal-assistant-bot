@@ -459,7 +459,7 @@ def perform_command(command: str, adr_book, *args, **kwargs) -> None:
 #curry functions
 @command_phone_operations_check_decorator
 def add_record(adr_book, line_list):
-    if len(line_list) < 4:
+    if len(line_list) < 3:
         print('Not enough arguments for add_record!')
         return
 
