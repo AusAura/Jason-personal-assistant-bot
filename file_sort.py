@@ -1,6 +1,6 @@
 from pathlib import Path
 import shutil
-import file_parser as parser
+from . import file_parser as parser
 import re
 
 CYRILLIC_SYMBOLS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ'

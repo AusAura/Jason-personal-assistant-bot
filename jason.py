@@ -1,4 +1,4 @@
-import address_book, note_book, file_sort
+from . import address_book, note_book, file_sort
 
 while True:
     

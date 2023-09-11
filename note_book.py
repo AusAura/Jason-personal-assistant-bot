@@ -22,16 +22,15 @@ class InvalidFormatError(Exception):
 class Notebook:
 
     def __init__(self, filename="notes.json"):
+
         self.notes = []
         self.filename = filename
-        #self.load_notes()
 
         if not os.path.exists(self.filename):
             with open(self.filename, 'w') as file:
                 json.dump([], file)
         else:
             self.load_notes()
-
 
     def add_note(self, note):
 

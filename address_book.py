@@ -48,6 +48,51 @@ def command_phone_operations_check_decorator(func):
 
 # Classes
 class AddressBook(UserDict):
+    N_LIMIT = 2
+
+    def __init__(self):
+
+        super().__init__()
+        self.count = 0
+        self.call_List = list(self.data.keys())
+
+        try:
+
+            with open('save.json') as reader:
+
+                try:
+                    file_data = json.load(reader)
+
+                    for item in file_data:
+                        name = Name(item['name'])
+                        random_var = item['Phone number']
+                        row_email = Email(item['email'])
+                        row_address = Address(item['address'])
+                        record = Record(name,
+                                        random_var[0], row_email, row_address)
+                        iter = 1
+
+                        while iter < len(random_var):
+                            record.add_phone(
+                                random_var[iter])
+                            iter += 1
+
+                        if item['Date of birth'] == '':
+                            record.birthday = None
+
+                        else:
+                            record.set_birthday(item['Date of birth'])
+
+                        self.data[item['name']] = record
+
+                except json.decoder.JSONDecodeError:
+                    file_data = []
+        
+        except FileNotFoundError:
+            with open('save.json', 'w'):
+                pass
+
+        # print(self.data)
 
     def add_record(self, record, *_):
         self.data.update({record.name.value: record})
@@ -350,41 +395,7 @@ def deconstruct_command(input_line: str) -> list:
     return new_line_list
 
 
-# load/save
-def load():
-    adr_book = AddressBook()
-
-    try:
-        with open('save.json', 'r') as json_file:
-            data = json.load(json_file)
-
-            for record_data in data:
-                row_name = Name(record_data['Name'])
-                row_birthday = Birthday(record_data['Birthday'])
-                row_email = Email(record_data['Email'])
-                row_address = Address(record_data['Address'])
-                record = Record(row_name, '', row_email, row_address)
-
-                row_phones = record_data['Phones']
-
-                if row_phones:
-
-                    row_normalized_phones = row_phones.split(',')
-                    row_serialized_phones = [Phone(phone) for phone in row_normalized_phones]
-
-                else:
-                    row_serialized_phones = ''
-
-                record.phones = row_serialized_phones
-                record.birthday = row_birthday
-                adr_book.add_record(record)
-
-    except FileNotFoundError:
-        print('Have not found created address book. Nothing to load from.')
-
-    return adr_book
-
-
+# save
 def save(adr_book):
     data = []
 
@@ -585,7 +596,7 @@ def show_all_items(adr_book, *_) -> None:
 
         print(f'Phones for {record}:')
         for id, phone in enumerate(adr_book.data[record].phones, 1):
-            print(f'{id}) - {phone.value}')
+            print(f'{id}) - {phone}')
 
 
 @command_phone_operations_check_decorator
@@ -767,8 +778,8 @@ command_description = {'not save': 'Close adress book without saving',
 # main
 def main():
 
-    adr_book = load()
-    # adr_book = ab
+    adr_book = AddressBook()
+
     print('*' * 10)
     hello()
     print('*' * 10)
@@ -790,46 +801,4 @@ def main():
 
 # Execute
 if __name__ == '__main__':
-    name = Name('Bill')
-    phone = Phone('1234567890')
-    email = Email('')
-    adress = Address('')
-    adress = '40 street 122, 55'
-    print(adress)
-    rec = Record(name, phone, email, adress)
-    ab = AddressBook()
-    ab.add_record(rec)
-
-    assert isinstance(ab['Bill'], Record)
-    assert isinstance(ab['Bill'].name, Name)
-    assert isinstance(ab['Bill'].phones, list)
-    assert isinstance(ab['Bill'].phones[0], Phone)
-    assert ab['Bill'].phones[0].value == '1234567890'
-
-    rec.set_birthday('10 January 2020')
-    rec.set_email('test@gmail.com')
-    print(ab['Bill'].birthday)
-
-    name = Name('John')
-    phone = Phone('1234567890')
-    email = Email('')
-    adress = Address('')
-    adress = '40 street 122, 55'
-    rec = Record(name, phone, email, adress)
-    rec.set_birthday('10 September 2020')
-    rec.set_email('test@gmail.com')
-    ab.add_record(rec)
-
-    name = Name('Mike')
-    phone = Phone('1234567890')
-    email = Email('')
-    adress = Address('')
-    adress = '40 street 122, 55'
-    rec = Record(name, phone, email, adress)
-    rec.set_birthday('10 July 2020')
-    rec.set_email('test@gmail.com')
-    ab.add_record(rec)
-
-    print('All Ok)')
-
     main()
