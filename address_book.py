@@ -6,14 +6,18 @@ import re
 # constant to return to main.py
 IS_FINISHED = False
 
+
 class TerribleException(Exception):
     pass
+
 
 class ExcessiveArguments(Exception):
     pass
 
+
 class WrongArgumentFormat(Exception):
     pass
+
 
 # Decorator that catches most of the exceptions
 def command_phone_operations_check_decorator(func):
@@ -45,6 +49,7 @@ def command_phone_operations_check_decorator(func):
             return
 
     return inner
+
 
 # Classes
 class AddressBook(UserDict):
@@ -208,6 +213,8 @@ class Record:
         print(f'{self.email} email record was added for {self.name.value}!')
 
 
+"""Class Field виступає головним класом від якого наслідуються інші класи, такі як: Birthday, Name, Phone, Email, 
+Address. Використовується для приведення типів данних."""
 class Field:
 
     def __init__(self, value):
@@ -224,6 +231,7 @@ class Field:
     def value(self, new_value):
         self._value = new_value
 
+"""Class Birthdaay наслідується від Field, приймає день народження формату str і повертає у вигляді date."""
 
 class Birthday(Field):
 
@@ -261,7 +269,7 @@ class Birthday(Field):
     def __repr__(self) -> str:
         return f'{self.value.strftime("%d %B %Y")}'
 
-
+"""Class Name наслідується від Field, приймає ім'я формату str і повертає його."""
 class Name(Field):
 
     def __init__(self, value):
@@ -270,7 +278,8 @@ class Name(Field):
     def __repr__(self) -> str:
         return f'{self._value}'
 
-
+"""Class Phone наслідується від Field, приймає номер телефону формату str, проводить його валідацію на коректність 
+введення, конвертує його до формату +380999999999 та повертає у новому вигляді."""
 class Phone(Field):
 
     def __init__(self, value):
@@ -305,7 +314,7 @@ class Phone(Field):
             correct_phone_number = '+38' + phone
         else:
             print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
-                  'formats: +380001112233 or 80001112233 or 0001112233')
+                  'formats: +380001112233 or 80001112233 or 0001112233!')
             raise WrongArgumentFormat
 
         return correct_phone_number
@@ -317,10 +326,11 @@ class Phone(Field):
             self.__value = self.convert_phone_number(new_value)
         else:
             print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
-                  'formats: +380001112233 or 80001112233 or 0001112233')
+                  'formats: +380001112233 or 80001112233 or 0001112233!')
             raise WrongArgumentFormat
 
-
+"""Class Email наслідується від Field, приймає емейл формату str, проводить його валідацію на коректність 
+введення та повертає."""
 class Email(Field):
 
     def __init__(self, value):
@@ -336,8 +346,8 @@ class Email(Field):
     @staticmethod
     def valid_email(email: str):
         if re.match(
-            r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
-                r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
+                r'^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}\.[a-z]{2,3}$', email) or re.match(
+            r"^[\w.+\-]{1}[\w.+\-]+@\w+\.[a-z]{2,3}$", email):
             return True
         return False
 
@@ -351,7 +361,7 @@ class Email(Field):
                   'Example: aa@example.net or aa@example.com.ua')
             raise WrongArgumentFormat
 
-
+"""Class Address наслідується від Field, приймає адресу формату str та повертає."""
 class Address(Field):
 
     def __init__(self, value):
@@ -585,24 +595,28 @@ def find(adr_book, line_list):
 
         if record.name.value.find(str_to_find) != -1:
             is_empty = False
-            print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            print(
+                f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         elif record.email.value.find(str_to_find) != -1:
             is_empty = False
-            print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            print(
+                f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         elif record.address.value.find(str_to_find) != -1:
             is_empty = False
-            print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+            print(
+                f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         for phone in record.phones:
 
             if phone.find(str_to_find) != -1:
                 is_empty = False
-                print(f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+                print(
+                    f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
                 break
 
     if is_empty:
@@ -610,12 +624,10 @@ def find(adr_book, line_list):
 
 
 def finish_session(adr_book, *_) -> None:
-  
     adr_book.close_record_data()
     print('Good bye!')
     global IS_FINISHED
     IS_FINISHED = True
-
 
 
 def hello(*_) -> None:
@@ -654,7 +666,6 @@ def show_all_items(adr_book, *_) -> None:
 
 @command_phone_operations_check_decorator
 def show_bday_in_days(adr_book, line_list, *_) -> None:
-
     days_timeframe = line_list[1]
 
     try:
@@ -680,7 +691,6 @@ def show_bday_in_days(adr_book, line_list, *_) -> None:
         record_timedelta = timedelta(days=record.birthday._days_to_birthday())
 
         if record_timedelta <= datetime_timedelta:
-          
             print('=' * 10)
             print(f'{record.name} will have a BDay in {record_timedelta.days}! ({record.birthday})')
             print(f'His data: phones - {record.phones}, email - {record.email}, address - {record.address}')
@@ -717,7 +727,6 @@ def show_some_items(adr_book, *_):
 
 @command_phone_operations_check_decorator
 def set_email(adr_book, line_list, *_):
-
     record_name = line_list[1]
 
     try:
@@ -748,7 +757,6 @@ def set_birthday(adr_book, line_list, *_):
 
 @command_phone_operations_check_decorator
 def set_address(adr_book, line_list, *_):
-
     record_name = line_list[1]
 
     try:
@@ -779,7 +787,6 @@ def show_birthday(adr_book, line_list, *_):
 
 @command_phone_operations_check_decorator
 def show_address(adr_book, line_list, *_):
-
     record_name = line_list[1]
     address = adr_book.data[record_name].address
 
@@ -811,33 +818,31 @@ command_list = {'not save': close_without_saving,
                 'help': help,
                 'bday in': show_bday_in_days}
 
-
 # command vocab with descriptions
 command_description = {'not save': 'Close adress book without saving',
-                'good bye': 'Save changes and close address book',
-                'close': 'Save changes and close address book',
-                'hello': 'Hear some greeting from me',
-                'add': 'Add a new record',
-                'add phone': 'Add new phone to the existing record',
-                'edit phone': 'Edit a phone of the existing record',
-                'show all': 'Show all the records',
-                'show some': 'Show some number of the records at a time',
-                'delete phone': 'Delete the phone of the existing record',
-                'delete contact': 'Delete record completely',
-                'set bday': 'Set a BDay for the existing record',
-                'set email': 'Set an email for the existing record',
-                'set address': 'Set an adress for the existing record',
-                'show bday': 'Show a BDay for the existing record',
-                'show email': 'Show an email for the existing record',
-                'show address': 'Show an address for the existing record',
-                'find': 'Find record that contains ...',
-                'help': 'Show full list of available commands',
-                'bday in': 'Show records that have BDay in set timeframe of days'}
+                       'good bye': 'Save changes and close address book',
+                       'close': 'Save changes and close address book',
+                       'hello': 'Hear some greeting from me',
+                       'add': 'Add a new record',
+                       'add phone': 'Add new phone to the existing record',
+                       'edit phone': 'Edit a phone of the existing record',
+                       'show all': 'Show all the records',
+                       'show some': 'Show some number of the records at a time',
+                       'delete phone': 'Delete the phone of the existing record',
+                       'delete contact': 'Delete record completely',
+                       'set bday': 'Set a BDay for the existing record',
+                       'set email': 'Set an email for the existing record',
+                       'set address': 'Set an adress for the existing record',
+                       'show bday': 'Show a BDay for the existing record',
+                       'show email': 'Show an email for the existing record',
+                       'show address': 'Show an address for the existing record',
+                       'find': 'Find record that contains ...',
+                       'help': 'Show full list of available commands',
+                       'bday in': 'Show records that have BDay in set timeframe of days'}
 
 
 # main
 def main():
-
     adr_book = AddressBook()
     # adr_book = load()
     # adr_book = ab
