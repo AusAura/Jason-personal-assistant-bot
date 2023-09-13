@@ -133,7 +133,9 @@ class AddressBook(UserDict):
             counter = len(self.data) + 1
 
         for key, value in self.data.items():
-            print(key, value)
+            recorded_phones = ''
+            recorded_phones = ', '.join([str(ph) for ph in value.phones])
+            print(f"{key}; {value.name}; {recorded_phones}; {value.birthday}; {value.email}; {value.address};")
             counter += 1
 
             if counter == n:
