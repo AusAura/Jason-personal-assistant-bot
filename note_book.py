@@ -151,7 +151,7 @@ def main():
         print("search = Search Notes(Пошук)")
         print("load = Load Notes(Завантаження)")
         print("save = Save Notes(Зберігання)")
-        print("exit = Exit (do not forget to save first!)")
+        print("exit = Exit (and save)")
         print('=' * 10)
       
         user_input = get_command_from_user()

@@ -1,5 +1,7 @@
 from collections import UserDict
 from datetime import datetime, timedelta
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 import json
 import re
 
@@ -807,6 +809,11 @@ command_description = {'not save': 'Close adress book without saving',
                        'help': 'Show full list of available commands',
                        'bday in': 'Show records that have BDay in set timeframe of days'}
 
+# Створення автозавершення для команд
+command_completer = WordCompleter(list(command_list.keys()), ignore_case=True)
+
+def get_command_from_user():
+    return prompt("Enter a command: ", completer=command_completer)
 
 # main
 def main():
@@ -820,6 +827,13 @@ def main():
     help()
 
     while True:
+        user_input = get_command_from_user()
+        current_command = user_input.casefold()
+
+        if current_command in command_list:
+            perform_command(current_command, adr_book, [])
+        else:
+            print("Unknown command. Type 'help' for a list of available commands.")
 
         print('*' * 10)
         input_line = input('Put your request here: ')
