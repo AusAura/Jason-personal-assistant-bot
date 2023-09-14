@@ -1,4 +1,4 @@
-from . import address_book, note_book, file_sort
+import address_book, note_book, file_sort
 
 def main():
 

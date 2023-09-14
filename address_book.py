@@ -83,7 +83,7 @@ class AddressBook(UserDict):
                             iter += 1
 
                         if item['Date of birth'] == '':
-                            record.birthday = None
+                            record.birthday = ''
 
                         else:
                             record.set_birthday(item['Date of birth'])
@@ -137,11 +137,12 @@ class AddressBook(UserDict):
         for key, value in self.data.items():
             recorded_phones = ''
             recorded_phones = ', '.join([str(ph) for ph in value.phones])
-            print(f"{key}; {value.name}; {recorded_phones}; {value.birthday}; {value.email}; {value.address};")
+            print(f"{key}| Phones: {recorded_phones} | BDay: {value.birthday} | Email: {value.email} | Address: {value.address}")
             counter += 1
 
             if counter == n:
                 counter = 0
+                print('*' * 10)
                 yield
 
         print('This was the end of the address book!')
@@ -165,7 +166,7 @@ class Record:
             self.address = Address('')
             self.address = address_value
 
-        self.birthday = None
+        self.birthday = ''
 
     def __repr__(self):
         return f"{self.name}; {self.phones}; {self.birthday if self.birthday else ''}; {self.email if self.email else ''}; {self.address if self.address else ''}"
@@ -187,9 +188,10 @@ class Record:
 
         for phone in self.phones:
 
-            if phone.value == old_phone:
+            if phone == Phone.convert_phone_number(old_phone):
                 new_phone_value = input('Please input the new phone number: ')
-                phone.value = new_phone_value
+                # Phone.convert_phone_number(new_phone_value)
+                phone = new_phone_value
                 break
 
         return new_phone_value
@@ -197,7 +199,7 @@ class Record:
     def delete_phone(self, phone):
 
         for index, record in enumerate(self.phones, 0):
-            if record.value == phone:
+            if record == Phone.convert_phone_number(phone):
                 self.phones.pop(index)
                 print(f'{phone} was successfully deleted for {self.name.value}')
                 return
@@ -206,7 +208,7 @@ class Record:
 
     def _days_to_birthday(self):
 
-        if self.birthday is None:
+        if self.birthday == '':
             print(f'BDay record is not set for {self.name.value}!')
             return
 
@@ -520,7 +522,11 @@ def edit_phone(adr_book, line_list) -> None:
     new_phone = adr_book.data[record_name].edit_phone(old_phone)
 
     if new_phone:
-        print(f'{old_phone} was successfully changed to {new_phone} for {record_name}')
+        if Phone.valid_phone(new_phone):
+            print(f'{old_phone} was successfully changed to {new_phone} for {record_name}')
+        else:
+            print('Number format is not correct! Must contain 10-13 symbols and must match the one of the current '
+                  'formats: +380001112233 or 80001112233 or 0001112233!')
     else:
         print(f'{old_phone} phone number was not found for {record_name}!')
 
@@ -571,22 +577,24 @@ def find(adr_book, line_list):
 
     for record in adr_book.data.values():
 
+        phones_string = ', '.join([str(ph) for ph in record.phones])
+
         if record.name.value.find(str_to_find) != -1:
             is_empty = False
             print(
-                f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+                f'Name: {record.name} | Phones: {phones_string} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         elif record.email.value.find(str_to_find) != -1:
             is_empty = False
             print(
-                f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+                f'Name: {record.name} | Phones: {phones_string} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         elif record.address.value.find(str_to_find) != -1:
             is_empty = False
             print(
-                f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+                f'Name: {record.name} | Phones: {phones_string} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
             continue
 
         for phone in record.phones:
@@ -594,7 +602,7 @@ def find(adr_book, line_list):
             if phone.find(str_to_find) != -1:
                 is_empty = False
                 print(
-                    f'Name: {record.name} | Phones: {record.phones} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
+                    f'Name: {record.name} | Phones: {phones_string} | Birthday: {record.birthday} | Email: {record.email} | Address: {record.address}')
                 break
 
     if is_empty:
@@ -630,7 +638,7 @@ def show_all_items(adr_book, *_) -> None:
             print(f'Your list for {record} is empty!')
             continue
 
-        print(f'Phones for {record}:')
+        print(f'Phones for {record} (email = "{adr_book.data[record].email.value}", address = "{adr_book.data[record].address.value}", BDay = "{adr_book.data[record].birthday}"):')
         for id, phone in enumerate(adr_book.data[record].phones, 1):
             print(f'{id}) - {phone}')
 
@@ -659,12 +667,18 @@ def show_bday_in_days(adr_book, line_list, *_) -> None:
 
     for record in adr_book.data.values():
 
+        if type(record.birthday) == str:
+            continue
+
         record_timedelta = timedelta(days=record.birthday._days_to_birthday())
 
         if record_timedelta <= datetime_timedelta:
+
+            recorded_phones = ', '.join([str(ph) for ph in record.phones])
+
             print('=' * 10)
             print(f'{record.name} will have a BDay in {record_timedelta.days}! ({record.birthday})')
-            print(f'His data: phones - {record.phones}, email - {record.email}, address - {record.address}')
+            print(f'His data: phones - {recorded_phones}, email - {record.email}, address - {record.address}')
 
             is_empty = False
 
@@ -674,8 +688,11 @@ def show_bday_in_days(adr_book, line_list, *_) -> None:
 
 @command_phone_operations_check_decorator
 def show_some_items(adr_book, *_):
+
     n = input('How much records to show at a time? ')
+    print('*' * 10)
     iterator = adr_book.iterator(int(n))
+
     try:
         next(iterator)
     except StopIteration:
@@ -687,6 +704,7 @@ def show_some_items(adr_book, *_):
 
         if action == 'y':
             try:
+                print('*' * 10)
                 next(iterator)
             except StopIteration:
                 return
@@ -812,10 +830,10 @@ command_description = {'not save': 'Close adress book without saving',
                        'bday in': 'Show records that have BDay in set timeframe of days'}
 
 # Створення автозавершення для команд
-command_completer = WordCompleter(list(command_list.keys()), ignore_case=True)
+# command_completer = WordCompleter(list(command_list.keys()), ignore_case=True)
 
-def get_command_from_user():
-    return prompt("Enter a command: ", completer=command_completer)
+# def get_command_from_user():
+#     return prompt("Enter a command: ", completer=command_completer)
 
 # main
 def main():
@@ -829,22 +847,22 @@ def main():
     help()
 
     while True:
-        user_input = get_command_from_user()
-        current_command = user_input.casefold()
 
-        if current_command in command_list:
-            perform_command(current_command, adr_book, [])
-        else:
-            print("Unknown command. Type 'help' for a list of available commands.")
+        # user_input = get_command_from_user()
+        # current_command = user_input.casefold()
+        # if current_command in command_list:
+        #     perform_command(current_command, adr_book, [])
+        # else:
+        #     print("Unknown command. Type 'help' for a list of available commands.")
 
         print('*' * 10)
-        input_line = input('Put your request here: ')
 
+        input_line = input('Put your request here: ')
         line_list = deconstruct_command(input_line)
         current_command = line_list[0].casefold()
-
         perform_command(current_command, adr_book, line_list)
 
+        # checker to return to jason.py
         if is_finished:
             is_finished = False
             break
@@ -853,5 +871,4 @@ def main():
 # Execute
 if __name__ == '__main__':
 
-    # checker to return to jason.py
     main()
