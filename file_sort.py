@@ -1,7 +1,8 @@
-from pathlib import Path
 import shutil
-import file_parser as parser
 import re
+from pathlib import Path
+from . import file_parser as parser
+
 
 CYRILLIC_SYMBOLS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ'
 TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r",

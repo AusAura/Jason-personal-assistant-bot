@@ -1,4 +1,4 @@
-import address_book, note_book, file_sort
+from . import address_book, note_book, file_sort
 
 # avoiding next cycle execution and I/O exception after basic exit() with 'is_finished' var
 def exit():
