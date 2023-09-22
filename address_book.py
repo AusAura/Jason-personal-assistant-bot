@@ -434,7 +434,7 @@ def deconstruct_command(input_line: str) -> list:
 
 #Universal command performer/handler
 @command_phone_operations_check_decorator
-def perform_command(command: str, adr_book, *args, **kwargs) -> None | bool:
+def perform_command(command: str, adr_book, *args, **kwargs) -> None:
     command_list[command](adr_book, *args, **kwargs)
 
 
