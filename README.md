@@ -7,7 +7,7 @@ https://test.pypi.org/project/jason/1.12/
 
 To start: put 'jason' in your command line interface after installation.
 
-## Warning: Both README and application concept contain humor content.
+### Warning: both README and application concept contain humor content
 
 # Summary:
 
@@ -327,4 +327,4 @@ Certainly, you have a folder where clutter constantly accumulates in the form of
 
 All you need to do is simply **specify the path to the folder with all the clutter**, and this program will sort all the files and move them to a new folder. Inside this new folder, there will be subfolders with appropriate names containing files sorted according to the format. Archives will be unpacked and placed in folders with names corresponding to the names of the archives.
 
-During the sorting process,** all file names written in Cyrillic characters will be replaced with Latin characters while preserving the names.**
+During the sorting process, **all file names written in Cyrillic characters will be replaced with Latin characters while preserving the names.**
